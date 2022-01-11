@@ -22,28 +22,43 @@
 #include <cstdint>
 #include <string>
 
+#include "SystemDetector.h"
+#include "StringView.hpp"
+
 namespace System {
+
 namespace StringSwitch {
-    // switch case on a string
-    constexpr uint64_t _hash(const char* input)
-    {
-        return (*input ? static_cast<uint64_t>(*input) + 33 * _hash(input + 1) : 5381);
-    }
 
-    constexpr uint64_t _hash(const char* input, size_t len)
-    {
-        return (len > 0 ? static_cast<uint64_t>(*input) + 33 * _hash(input + 1, len - 1) : 5381);
-    }
+#if defined(SYSTEM_ARCH_X86)
+    using hash_type = uint32_t;
+#else
+    using hash_type = uint64_t;
+#endif
 
-    inline uint64_t _hash(const std::string& input)
-    {
-        return _hash(input.c_str());
-    }
-}
+namespace Detail {
+    constexpr char lower_char(char c) { return ((c >= 'A' && c <= 'Z') ? c + 32 : c); }
 }
 
-#define StringSwitch(x) switch( System::StringSwitch::_hash(x) )
-#define StringCase(x)   case System::StringSwitch::_hash(x)
+// switch case on a string
+constexpr hash_type Hash(const char* input, size_t len) { return (len > 0 ? static_cast<hash_type>(*input) + 33 * Hash(input + 1, len - 1) : 5381); }
 
-#define NStringSwitch(x, s) switch( System::StringSwitch::_hash(x, s) )
-#define NStringCase(x, s)   case System::StringSwitch::_hash(x, s)
+template<size_t N>
+constexpr hash_type Hash(const char(&input)[N]) { return Hash(input, N-1); }
+
+constexpr hash_type Hash(System::StringView sv) { return Hash(sv.data(), sv.length()); }
+
+inline hash_type Hash(const std::string& input) { return Hash(input.c_str(), input.length()); }
+
+
+
+constexpr hash_type IHash(const char* input, size_t len) { return (len > 0 ? static_cast<hash_type>(Detail::lower_char(*input)) + 33 * IHash(input + 1, len - 1) : 5381); }
+
+template<size_t N>
+constexpr inline hash_type IHash(const char(&input)[N]) { return IHash(input, N - 1); }
+
+constexpr hash_type IHash(System::StringView sv) { return IHash(sv.data(), sv.length()); }
+
+inline hash_type IHash(const std::string& input) { return IHash(input.c_str(), input.length()); }
+
+}
+}

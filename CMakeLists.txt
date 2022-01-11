@@ -30,6 +30,7 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ScopedLock.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/StringSwitch.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/StringUtils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/StringView.hpp
 )
 
 if(${SYSTEM_CODE} OR ${FILESYSTEM_CODE} OR ${LIBRARY_CODE})
@@ -38,6 +39,7 @@ if(${SYSTEM_CODE} OR ${FILESYSTEM_CODE} OR ${LIBRARY_CODE})
     $<$<BOOL:${FILESYSTEM_CODE}>:${CMAKE_CURRENT_SOURCE_DIR}/src/Filesystem.cpp>
     $<$<BOOL:${LIBRARY_CODE}>:${CMAKE_CURRENT_SOURCE_DIR}/src/Library.cpp>
     ${CMAKE_CURRENT_SOURCE_DIR}/src/System_internals.cpp
+	${SYSTEM_HEADERS}
   )
   
   set_target_properties(system PROPERTIES
