@@ -37,55 +37,28 @@ TEST_CASE("Show modules", "[showmodules]")
 TEST_CASE("Dirname", "[dirname]")
 {
 #if defined(SYSTEM_OS_WINDOWS)
-    std::string p("D:\\test1\\test2\\//\\\\\\\\//test3\\");
+    REQUIRE(System::Filesystem::Dirname("D:\\test1\\test2\\//\\\\\\\\//test3\\") == "D:\\test1\\test2\\test3");
+    REQUIRE(System::Filesystem::Dirname("D:\\test1\\test2/test3") == "D:\\test1\\test2");
+    REQUIRE(System::Filesystem::Dirname("D:\\test1\\test2") == "D:\\test1");
+    REQUIRE(System::Filesystem::Dirname("D:\\test1") == "D:");
+    REQUIRE(System::Filesystem::Dirname("D:") == "D:");
 
-    REQUIRE(p == "D:\\test1\\test2\\//\\\\\\\\//test3\\");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "D:\\test1\\test2\\test3");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "D:\\test1\\test2");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "D:\\test1");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "D:");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "D:");
-
-    p = "test1\\test2";
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "test1");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "");
+    REQUIRE(System::Filesystem::Dirname("test1/test2") == "test1");
+    REQUIRE(System::Filesystem::Dirname("test1\\test2") == "test1");
+    REQUIRE(System::Filesystem::Dirname("test1") == "");
+    REQUIRE(System::Filesystem::Dirname("") == "");
 
 #else
-    std::string p("/test1\\test2\\//\\\\\\\\//test3\\");
+    REQUIRE(System::Filesystem::Dirname("/test1/test2\\//\\\\\\\\//test3\\") == "/test1/test2/test3");
+    REQUIRE(System::Filesystem::Dirname("/test1/test2\\test3") == "/test1/test2");
+    REQUIRE(System::Filesystem::Dirname("/test1/test2") == "/test1");
+    REQUIRE(System::Filesystem::Dirname("/test1") == "/");
+    REQUIRE(System::Filesystem::Dirname("/") == "/");
 
-    REQUIRE(p == "/test1\\test2\\//\\\\\\\\//test3\\");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/test1/test2/test3");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/test1/test2");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/test1");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/");
-
-    p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/");
-
+    REQUIRE(System::Filesystem::Dirname("test1/test2") == "test1");
+    REQUIRE(System::Filesystem::Dirname("test1\\test2") == "test1");
+    REQUIRE(System::Filesystem::Dirname("test1") == "");
+    REQUIRE(System::Filesystem::Dirname("") == "");
 #endif
 }
 
