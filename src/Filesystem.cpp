@@ -59,6 +59,8 @@
 namespace System {
 namespace Filesystem {
 
+static void _CleanSlashes(std::string& str);
+
 std::string Filename(std::string const& path)
 {
     size_t pos = path.find_last_of("/\\");
@@ -66,6 +68,17 @@ std::string Filename(std::string const& path)
         return path.substr(pos+1);
 
     return path;
+}
+
+std::string Join(StringView r, StringView l)
+{
+    std::string result(r.to_string());
+
+    result += Separator;
+    result += l.to_string();
+
+    _CleanSlashes(result);
+    return result;
 }
 
 std::string CanonicalPath(std::string const& path)

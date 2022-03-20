@@ -74,3 +74,24 @@ TEST_CASE("Filename", "[filename]")
     CHECK(System::Filesystem::Filename("file") == "file");
 #endif
 }
+
+TEST_CASE("Join", "[join]")
+{
+#if defined(SYSTEM_OS_WINDOWS)
+    CHECK(System::Filesystem::Join("a", "b") == "a\\b");
+    CHECK(System::Filesystem::Join("a\\", "b") == "a\\b");
+    CHECK(System::Filesystem::Join("a", "\\b") == "a\\b");
+    CHECK(System::Filesystem::Join("a/", "b") == "a\\b");
+    CHECK(System::Filesystem::Join("a", "/b") == "a\\b");
+    CHECK(System::Filesystem::Join("a") == "a");
+    CHECK(System::Filesystem::Join("a", "b", "c") == "a\\b\\c");
+#else
+    CHECK(System::Filesystem::Join("a", "b") == "a/b");
+    CHECK(System::Filesystem::Join("a\\", "b") == "a/b");
+    CHECK(System::Filesystem::Join("a", "\\b") == "a/b");
+    CHECK(System::Filesystem::Join("a/", "b") == "a/b");
+    CHECK(System::Filesystem::Join("a", "/b") == "a/b");
+    CHECK(System::Filesystem::Join("a") == "a");
+    CHECK(System::Filesystem::Join("a", "b", "c") == "a/b/c");
+#endif
+}

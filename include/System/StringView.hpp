@@ -38,6 +38,7 @@ public:
         const char_type* _value;
 
     public:
+        constexpr iterator(const iterator& o) : _value(o._value) {}
         constexpr iterator(const char_type* value) : _value(value) {}
 
         constexpr iterator& operator++() { ++_value; return *this; }
@@ -183,7 +184,7 @@ public:
     constexpr size_t count(char_type const c) const
     {
         size_t n = 0;
-        for (int i = 0; i < _length; ++i)
+        for (size_t i = 0; i < _length; ++i)
             if (_string[i] == c)
                 ++n;
 
