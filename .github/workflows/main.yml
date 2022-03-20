@@ -22,7 +22,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          cmake ${{ github.workspace }}/CMakeLists.txt -S . -B build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
           find build
           
@@ -30,7 +30,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         shell: bash
         run: |
-          cmake ${{ github.workspace }}/CMakeLists.txt -S . -B build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
           find build
           
@@ -38,6 +38,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          cmake ${{ github.workspace }}\CMakeLists.txt -S . -B build
+          cmake ${{ github.workspace }}\CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
-          Get-ChildItem -Recurse -Filter '*' ${{ runner.workspace }}\build;
+          Tree $Path /F ${{ runner.workspace }}\build
