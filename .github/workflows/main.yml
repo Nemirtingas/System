@@ -24,7 +24,8 @@ jobs:
         run: |
           cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
-          find build
+          #find build
+          build/test_app
           
       - name: MacOS tests
         if: matrix.os == 'macos-latest'
@@ -32,7 +33,8 @@ jobs:
         run: |
           cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
-          find build
+          #find build
+          build/test_app
           
       - name: Windows tests
         if: matrix.os == 'windows-latest'
@@ -40,4 +42,5 @@ jobs:
         run: |
           cmake ${{ github.workspace }}\CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
-          Tree $Path /F ${{ runner.workspace }}\build
+          Get-ChildItem -Recurse ${{ runner.workspace }}\build
+          build\Debug\test_app.exe
