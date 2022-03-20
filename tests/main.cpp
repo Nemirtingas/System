@@ -37,40 +37,40 @@ TEST_CASE("Show modules", "[showmodules]")
 TEST_CASE("Dirname", "[dirname]")
 {
 #if defined(SYSTEM_OS_WINDOWS)
-    REQUIRE(System::Filesystem::Dirname("D:\\test1\\test2\\//\\\\\\\\//test3\\") == "D:\\test1\\test2\\test3");
-    REQUIRE(System::Filesystem::Dirname("D:\\test1\\test2/test3") == "D:\\test1\\test2");
-    REQUIRE(System::Filesystem::Dirname("D:\\test1\\test2") == "D:\\test1");
-    REQUIRE(System::Filesystem::Dirname("D:\\test1") == "D:");
-    REQUIRE(System::Filesystem::Dirname("D:") == "D:");
+    CHECK(System::Filesystem::Dirname("D:\\test1\\test2\\//\\\\\\\\//test3\\") == "D:\\test1\\test2\\test3");
+    CHECK(System::Filesystem::Dirname("D:\\test1\\test2/test3") == "D:\\test1\\test2");
+    CHECK(System::Filesystem::Dirname("D:\\test1\\test2") == "D:\\test1");
+    CHECK(System::Filesystem::Dirname("D:\\test1") == "D:");
+    CHECK(System::Filesystem::Dirname("D:") == "D:");
 
-    REQUIRE(System::Filesystem::Dirname("test1/test2") == "test1");
-    REQUIRE(System::Filesystem::Dirname("test1\\test2") == "test1");
-    REQUIRE(System::Filesystem::Dirname("test1") == "");
-    REQUIRE(System::Filesystem::Dirname("") == "");
+    CHECK(System::Filesystem::Dirname("test1/test2") == "test1");
+    CHECK(System::Filesystem::Dirname("test1\\test2") == "test1");
+    CHECK(System::Filesystem::Dirname("test1") == "");
+    CHECK(System::Filesystem::Dirname("") == "");
 
 #else
-    REQUIRE(System::Filesystem::Dirname("/test1/test2\\//\\\\\\\\//test3\\") == "/test1/test2/test3");
-    REQUIRE(System::Filesystem::Dirname("/test1/test2\\test3") == "/test1/test2");
-    REQUIRE(System::Filesystem::Dirname("/test1/test2") == "/test1");
-    REQUIRE(System::Filesystem::Dirname("/test1") == "/");
-    REQUIRE(System::Filesystem::Dirname("/") == "/");
+    CHECK(System::Filesystem::Dirname("/test1/test2\\//\\\\\\\\//test3\\") == "/test1/test2/test3");
+    CHECK(System::Filesystem::Dirname("/test1/test2\\test3") == "/test1/test2");
+    CHECK(System::Filesystem::Dirname("/test1/test2") == "/test1");
+    CHECK(System::Filesystem::Dirname("/test1") == "/");
+    CHECK(System::Filesystem::Dirname("/") == "/");
 
-    REQUIRE(System::Filesystem::Dirname("test1/test2") == "test1");
-    REQUIRE(System::Filesystem::Dirname("test1\\test2") == "test1");
-    REQUIRE(System::Filesystem::Dirname("test1") == "");
-    REQUIRE(System::Filesystem::Dirname("") == "");
+    CHECK(System::Filesystem::Dirname("test1/test2") == "test1");
+    CHECK(System::Filesystem::Dirname("test1\\test2") == "test1");
+    CHECK(System::Filesystem::Dirname("test1") == "");
+    CHECK(System::Filesystem::Dirname("") == "");
 #endif
 }
 
 TEST_CASE("Filename", "[filename]")
 {
 #if defined(SYSTEM_OS_WINDOWS)
-    REQUIRE(System::Filesystem::Filename("D:\\dir\\file") == "file");
-    REQUIRE(System::Filesystem::Filename("D:\\dir\\file\\") == "");
-    REQUIRE(System::Filesystem::Filename("file") == "file");
+    CHECK(System::Filesystem::Filename("D:\\dir\\file") == "file");
+    CHECK(System::Filesystem::Filename("D:\\dir\\file\\") == "");
+    CHECK(System::Filesystem::Filename("file") == "file");
 #else
-    REQUIRE(System::Filesystem::Filename("/dir/file") == "file");
-    REQUIRE(System::Filesystem::Filename("/dir/file/") == "");
-    REQUIRE(System::Filesystem::Filename("file") == "file");
+    CHECK(System::Filesystem::Filename("/dir/file") == "file");
+    CHECK(System::Filesystem::Filename("/dir/file/") == "");
+    CHECK(System::Filesystem::Filename("file") == "file");
 #endif
 }
