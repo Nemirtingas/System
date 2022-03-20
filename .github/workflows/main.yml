@@ -1,0 +1,43 @@
+name: CI
+
+on: [push]
+jobs:
+  job:
+    name: ${{ matrix.os }}-cmake-build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+            
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          
+      - uses: lukka/get-cmake@latest
+        
+      - name: Linux tests
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          cmake ${{ github.workspace }}/CMakeLists.txt -S . -B build
+          cmake --build build
+          find build
+          
+      - name: MacOS tests
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          cmake ${{ github.workspace }}/CMakeLists.txt -S . -B build
+          cmake --build build
+          find build
+          
+      - name: Windows tests
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+          cmake ${{ github.workspace }}\CMakeLists.txt -S . -B build
+          cmake --build build
+          Get-ChildItem -Recurse -Filter '*' ${{ runner.workspace }}\build;

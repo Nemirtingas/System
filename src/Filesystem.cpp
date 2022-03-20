@@ -63,18 +63,9 @@ std::string Filename(std::string const& path)
 {
     size_t pos = path.find_last_of("/\\");
     if (pos != std::string::npos)
-        return path.substr(pos);
+        return path.substr(pos+1);
 
     return path;
-}
-
-std::string Dirname(std::string const& path)
-{
-    size_t pos = path.find_last_of("/\\");
-    if (pos == std::string::npos)
-        return std::string();
-
-    return std::string(path.begin(), path.begin() + pos + 1);
 }
 
 std::string CanonicalPath(std::string const& path)
@@ -125,6 +116,46 @@ std::chrono::system_clock::time_point FileCTime(std::string const& path)
 
 #ifdef SYSTEM_OS_WINDOWS
 
+static void _CleanSlashes(std::string& str)
+{
+    size_t pos;
+    std::replace(str.begin(), str.end(), '/', '\\');
+
+    while ((pos = str.find("\\\\")) != std::string::npos)
+        str.replace(pos, 2, "\\");
+
+    pos = 0;
+    while ((pos = str.find("\\.", pos)) != std::string::npos)
+    {
+        if (str[pos + 2] == '\\' || (pos + 2) >= str.length())
+        {
+            str.replace(pos, 3, "\\");
+        }
+        else
+        {
+            ++pos;
+        }
+    }
+}
+
+std::string Dirname(std::string const& path)
+{
+    std::string r;
+    size_t pos = path.find_last_of(":/\\");
+
+    if (pos == std::string::npos)
+        return r;
+
+    while (pos != 0 && path[pos] != ':' && (path[pos] == '/' || path[pos] == '\\'))
+    {
+        --pos;
+    }
+
+    r = std::string(path.begin(), path.begin() + pos + 1);
+    _CleanSlashes(r);
+    return r;
+}
+
 std::string GetCwd()
 {
     DWORD size = GetCurrentDirectoryW(0, nullptr);
@@ -151,23 +182,7 @@ std::string CleanPath(std::string const& path)
     size_t pos;
     size_t size;
 
-    std::replace(cleaned_path.begin(), cleaned_path.end(), '/', '\\');
-
-    while ((pos = cleaned_path.find("\\\\")) != std::string::npos)
-        cleaned_path.replace(pos, 2, "\\");
-
-    pos = 0;
-    while ((pos = cleaned_path.find("\\.", pos)) != std::string::npos)
-    {
-        if (cleaned_path[pos + 2] == '\\' || (pos + 2) >= cleaned_path.length())
-        {
-            cleaned_path.replace(pos, 3, "\\");
-        }
-        else
-        {
-            ++pos;
-        }
-    }
+    _CleanSlashes(cleaned_path);
 
     pos = 0;
     while ((pos = cleaned_path.find("\\..", pos)) != std::string::npos )
@@ -342,6 +357,46 @@ std::vector<std::string> ListFiles(std::string const& path, bool files_only, boo
 
 #else
 
+static void _CleanSlashes(std::string& str)
+{
+    size_t pos;
+    std::replace(str.begin(), str.end(), '\\', '/');
+
+    while ((pos = str.find("//")) != std::string::npos)
+        str.replace(pos, 2, "/");
+
+    pos = 0;
+    while ((pos = str.find("/.", pos)) != std::string::npos)
+    {
+        if (str[pos + 2] == '/' || (pos + 2) >= str.length())
+        {
+            str.replace(pos, 3, "/");
+        }
+        else
+        {
+            ++pos;
+        }
+    }
+}
+
+std::string Dirname(std::string const& path)
+{
+    std::string r;
+    size_t pos = path.find_last_of("/\\");
+
+    if (pos == std::string::npos)
+        return r;
+
+    while (pos != 0 && (path[pos] == '/' || path[pos] == '\\'))
+    {
+        --pos;
+    }
+
+    r = std::string(path.begin(), path.begin() + pos + 1);
+    _CleanSlashes(r);
+    return r;
+}
+
 std::string GetCwd()
 {
     char buff[4096];
@@ -364,21 +419,7 @@ std::string CleanPath(std::string const& path)
 
     std::replace(cleaned_path.begin(), cleaned_path.end(), '\\', '/');
 
-    while ((pos = cleaned_path.find("//")) != std::string::npos)
-        cleaned_path.replace(pos, 2, "/");
-
-    pos = 0;
-    while ((pos = cleaned_path.find("/.", pos)) != std::string::npos)
-    {
-        if (cleaned_path[pos + 2] == '/' || (pos + 2) >= cleaned_path.length())
-        {
-            cleaned_path.replace(pos, 3, "/");
-        }
-        else
-        {
-            ++pos;
-        }
-    }
+    _CleanSlashes(cleaned_path);
 
     pos = 0;
     while ((pos = cleaned_path.find("/..", pos)) != std::string::npos)
@@ -409,9 +450,6 @@ std::string CleanPath(std::string const& path)
             ++pos;
         }
     }
-
-    if (cleaned_path.empty())
-        cleaned_path = '/';
 
     return cleaned_path;
 }
