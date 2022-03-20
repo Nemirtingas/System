@@ -42,5 +42,5 @@ jobs:
         run: |
           cmake ${{ github.workspace }}\CMakeLists.txt -DBUILD_TESTS=ON -S . -B build
           cmake --build build
-          Get-ChildItem -Recurse ${{ runner.workspace }}\build
+          Get-ChildItem -Recurse build
           build\Debug\test_app.exe

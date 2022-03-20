@@ -42,7 +42,7 @@ TEST_CASE("Dirname", "[dirname]")
     REQUIRE(p == "D:\\test1\\test2\\//\\\\\\\\//test3\\");
 
     p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "D:\\test1\\test2\\//\\\\\\\\//test3");
+    REQUIRE(p == "D:\\test1\\test2\\test3");
 
     p = System::Filesystem::Dirname(p);
     REQUIRE(p == "D:\\test1\\test2");
@@ -72,10 +72,10 @@ TEST_CASE("Dirname", "[dirname]")
     REQUIRE(p == "/test1\\test2\\//\\\\\\\\//test3\\");
 
     p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/test1\\test2\\//\\\\\\\\//test3");
+    REQUIRE(p == "/test1/test2/test3");
 
     p = System::Filesystem::Dirname(p);
-    REQUIRE(p == "/test1\\test2");
+    REQUIRE(p == "/test1/test2");
 
     p = System::Filesystem::Dirname(p);
     REQUIRE(p == "/test1");

@@ -96,6 +96,8 @@ target_link_libraries(shared
   System::System
 )
 
+set_target_properties(shared PROPERTIES PREFIX "")
+
 set_property(TARGET shared PROPERTY
   MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   
