@@ -31,22 +31,38 @@ TEST_CASE("Type name", "[TypeName]")
         TypeNameTestClass  test1, *pointerTest1 = &test1, **pointerTest11 = &pointerTest1, ***pointerTest111 = &pointerTest11;
         TypeNameTestStruct test2, *pointerTest2 = &test2, **pointerTest22 = &pointerTest2, ***pointerTest222 = &pointerTest22;
 
+#if defined(SYSTEM_OS_MACOS)
+        CHECK(System::TypeName::TypeName<TypeNameTestClass>().to_string() == "TypeNameTestClass");
+        CHECK(System::TypeName::TypeName<TypeNameTestClass*>().to_string() == "TypeNameTestClass *");
+        CHECK(System::TypeName::TypeName<TypeNameTestClass**>().to_string() == "TypeNameTestClass **");
+        CHECK(System::TypeName::TypeName<TypeNameTestClass&>().to_string() == "TypeNameTestClass &");
+        CHECK(System::TypeName::TypeName<TypeNameTestClass&&>().to_string() == "TypeNameTestClass &&");
+#else
         CHECK(System::TypeName::TypeName<TypeNameTestClass>().to_string() == "TypeNameTestClass");
         CHECK(System::TypeName::TypeName<TypeNameTestClass*>().to_string() == "TypeNameTestClass*");
         CHECK(System::TypeName::TypeName<TypeNameTestClass**>().to_string() == "TypeNameTestClass**");
         CHECK(System::TypeName::TypeName<TypeNameTestClass&>().to_string() == "TypeNameTestClass&");
         CHECK(System::TypeName::TypeName<TypeNameTestClass&&>().to_string() == "TypeNameTestClass&&");
+#endif
 
         CHECK(System::TypeName::BaseTypeName(test1).to_string() == "TypeNameTestClass");
         CHECK(System::TypeName::BaseTypeName(pointerTest1).to_string() == "TypeNameTestClass");
         CHECK(System::TypeName::BaseTypeName(pointerTest11).to_string() == "TypeNameTestClass");
         CHECK(System::TypeName::BaseTypeName(pointerTest111).to_string() == "TypeNameTestClass");
 
+#if defined(SYSTEM_OS_MACOS)
+        CHECK(System::TypeName::TypeName<TypeNameTestStruct>().to_string() == "TypeNameTestStruct");
+        CHECK(System::TypeName::TypeName<TypeNameTestStruct*>().to_string() == "TypeNameTestStruct *");
+        CHECK(System::TypeName::TypeName<TypeNameTestStruct**>().to_string() == "TypeNameTestStruct **");
+        CHECK(System::TypeName::TypeName<TypeNameTestStruct&>().to_string() == "TypeNameTestStruct &");
+        CHECK(System::TypeName::TypeName<TypeNameTestStruct&&>().to_string() == "TypeNameTestStruct &&");
+#else
         CHECK(System::TypeName::TypeName<TypeNameTestStruct>().to_string() == "TypeNameTestStruct");
         CHECK(System::TypeName::TypeName<TypeNameTestStruct*>().to_string() == "TypeNameTestStruct*");
         CHECK(System::TypeName::TypeName<TypeNameTestStruct**>().to_string() == "TypeNameTestStruct**");
         CHECK(System::TypeName::TypeName<TypeNameTestStruct&>().to_string() == "TypeNameTestStruct&");
         CHECK(System::TypeName::TypeName<TypeNameTestStruct&&>().to_string() == "TypeNameTestStruct&&");
+#endif
 
         CHECK(System::TypeName::BaseTypeName(test2).to_string() == "TypeNameTestStruct");
         CHECK(System::TypeName::BaseTypeName(pointerTest2).to_string() == "TypeNameTestStruct");
