@@ -57,9 +57,20 @@ constexpr auto type_name_array()
     return substring_as_array(name, std::make_index_sequence<name.size()>{});
 }
 
+
+#if defined(_MSC_VER)
+#if !defined(__clang__)
+    #define MSVC_NOT_INLINE_CXX14
+#else
+    #define MSVC_NOT_INLINE_CXX14 inline
+#endif
+#else
+    #define MSVC_NOT_INLINE_CXX14 inline
+#endif
+
 template <typename T>
 struct type_name_holder {
-    static constexpr auto value = type_name_array<T>();
+    static MSVC_NOT_INLINE_CXX14 constexpr auto value = type_name_array<T>();
 };
 
 
