@@ -77,6 +77,7 @@ TEST_CASE("Load library", "[loadlibrary]")
     std::string lib_path = System::Filesystem::Join(System::Filesystem::Dirname(System::GetExecutablePath()), "shared");
     shared.OpenLibrary(lib_path, true);
     std::cout << "From executable: " << std::endl
+              << "  Executable pid        : " << System::GetProcessId() << std::endl
               << "  Executable path       : " << System::GetExecutablePath() << std::endl
               << "  Executable module path: " << System::GetModulePath() << std::endl
               << "  Library module path   : " << shared.GetLibraryPath() << std::endl << std::endl;

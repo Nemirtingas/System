@@ -22,12 +22,14 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace System {
 
 std::chrono::system_clock::time_point GetBootTime();
 std::chrono::microseconds GetUpTime();
 
+uint64_t GetProcessId();
 // Get the current process argv
 std::vector<std::string> GetProcArgs();
 // Get User env variable

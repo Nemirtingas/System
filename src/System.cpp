@@ -69,6 +69,11 @@ namespace System {
 
 #if defined(SYSTEM_OS_WINDOWS)
 
+uint64_t GetProcessId()
+{
+    return ::GetProcessId(GetCurrentProcess());
+}
+
 std::chrono::system_clock::time_point GetBootTime()
 {
     static std::chrono::system_clock::time_point boottime(std::chrono::system_clock::now() - std::chrono::milliseconds(GetTickCount64()));
@@ -150,7 +155,7 @@ std::vector<std::string> GetModules()
     std::vector<std::string> paths;
     std::wstring wpath;
     DWORD size;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetProcessId(GetCurrentProcess()));
+    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetProcessId());
     if (handle_is_valid(hSnap))
     {
         MODULEENTRY32W entry{};
@@ -220,7 +225,7 @@ std::string GetExecutablePath()
     {
         exec_path = link;
     }
-	
+    
     return exec_path;
 }
 
@@ -543,6 +548,11 @@ std::vector<std::string> GetProcArgs()
 }
 
 #endif
+
+uint64_t GetProcessId()
+{
+    return getpid();
+}
 
 std::string GetUserdataPath()
 {
