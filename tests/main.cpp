@@ -24,23 +24,23 @@ TEST_CASE("Base64", "[base64]")
     CHECK(System::Encoding::Base64::Decode("eyAianNvbl9rZXkiOiAianNvbl92YWx1ZSIgfQ==") == R"({ "json_key": "json_value" })");
     CHECK(System::Encoding::Base64::Decode("eyAianNvbl9rZXkiOiAianNvbl92YWx1ZSIgfQ") == R"({ "json_key": "json_value" })");
 
-    CHECK(System::Encoding::Base64::Encode("ûûûûûûûûû" , true ) == "+/v7+/v7+/v7");
-    CHECK(System::Encoding::Base64::Encode("ûûûûûûûûû" , false) == "+/v7+/v7+/v7");
-    CHECK(System::Encoding::Base64::Encode("ûûûûûûûûûû", true ) == "+/v7+/v7+/v7+w==");
-    CHECK(System::Encoding::Base64::Encode("ûûûûûûûûûû", false) == "+/v7+/v7+/v7+w");
+    CHECK(System::Encoding::Base64::Encode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb"    , true ) == "+/v7+/v7+/v7");
+    CHECK(System::Encoding::Base64::Encode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb"    , false) == "+/v7+/v7+/v7");
+    CHECK(System::Encoding::Base64::Encode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb", true ) == "+/v7+/v7+/v7+w==");
+    CHECK(System::Encoding::Base64::Encode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb", false) == "+/v7+/v7+/v7+w");
 
-    CHECK(System::Encoding::Base64::UrlEncode("ûûûûûûûûû" , true ) == "-_v7-_v7-_v7");
-    CHECK(System::Encoding::Base64::UrlEncode("ûûûûûûûûû" , false) == "-_v7-_v7-_v7");
-    CHECK(System::Encoding::Base64::UrlEncode("ûûûûûûûûûû", true ) == "-_v7-_v7-_v7-w==");
-    CHECK(System::Encoding::Base64::UrlEncode("ûûûûûûûûûû", false) == "-_v7-_v7-_v7-w");
+    CHECK(System::Encoding::Base64::UrlEncode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb"    , true ) == "-_v7-_v7-_v7");
+    CHECK(System::Encoding::Base64::UrlEncode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb"    , false) == "-_v7-_v7-_v7");
+    CHECK(System::Encoding::Base64::UrlEncode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb", true ) == "-_v7-_v7-_v7-w==");
+    CHECK(System::Encoding::Base64::UrlEncode("\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb", false) == "-_v7-_v7-_v7-w");
+     
+    CHECK(System::Encoding::Base64::Decode("+/v7+/v7+/v7")     == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
+    CHECK(System::Encoding::Base64::Decode("+/v7+/v7+/v7+w==") == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
+    CHECK(System::Encoding::Base64::Decode("+/v7+/v7+/v7+w")   == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
 
-    CHECK(System::Encoding::Base64::Decode("+/v7+/v7+/v7") == "ûûûûûûûûû");
-    CHECK(System::Encoding::Base64::Decode("+/v7+/v7+/v7+w==") == "ûûûûûûûûûû");
-    CHECK(System::Encoding::Base64::Decode("+/v7+/v7+/v7+w") == "ûûûûûûûûûû");
-
-    CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7")     == "ûûûûûûûûû");
-    CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7-w==") == "ûûûûûûûûûû");
-    CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7-w")   == "ûûûûûûûûûû");
+    CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7")     == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
+    CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7-w==") == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
+    CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7-w")   == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
 }
 
 class TypeNameTestClass
