@@ -42,5 +42,7 @@ std::string GetExecutablePath();
 std::string GetModulePath();
 // List all loaded modules
 std::vector<std::string> GetModules();
+// Set current thread name
+bool SetCurrentThreadName(std::string const& thread_name);
 
 }

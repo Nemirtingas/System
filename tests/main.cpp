@@ -16,6 +16,11 @@ int main(int argc, char *argv[])
     return Catch::Session().run(argc, argv);
 }
 
+TEST_CASE("Set thread name", "[thread_name]")
+{
+    CHECK(System::SetCurrentThreadName("TestThreadName") == true);
+}
+
 TEST_CASE("Base64", "[base64]")
 {
     CHECK(System::Encoding::Base64::Encode(R"({ "json_key": "json_value" })", true) == "eyAianNvbl9rZXkiOiAianNvbl92YWx1ZSIgfQ==");

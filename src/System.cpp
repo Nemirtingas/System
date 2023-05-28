@@ -40,6 +40,7 @@
     #if defined(SYSTEM_OS_LINUX)
         #include <sys/sysinfo.h> // Get uptime (second resolution)
         #include <dirent.h>
+        #include <sys/prctl.h>
     #else
         #include <sys/sysctl.h>
         #include <mach-o/dyld_images.h>
@@ -180,6 +181,21 @@ std::vector<std::string> GetModules()
     }
 
     return paths;
+}
+
+bool SetCurrentThreadName(std::string const& thread_name)
+{
+    bool success = false;
+    auto wname = System::Encoding::Utf8ToWChar(thread_name);
+    HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+    if (kernel32 != nullptr)
+    {
+        auto pSetThreadDescription = (HRESULT(*)(HANDLE, PCWSTR))GetProcAddress(kernel32, "SetThreadDescription");
+        if (pSetThreadDescription != nullptr)
+            success = !FAILED(pSetThreadDescription(GetCurrentThread(), wname.c_str()));
+    }
+
+    return success;
 }
 
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
@@ -325,6 +341,11 @@ std::vector<std::string> GetProcArgs()
     }
 
     return res;
+}
+
+bool SetCurrentThreadName(std::string const& thread_name)
+{
+    return prctl(PR_SET_NAME, thread_name.c_str()) == 0;
 }
 
 #else
@@ -545,6 +566,11 @@ std::vector<std::string> GetProcArgs()
     }
 
     return res;
+}
+
+bool SetCurrentThreadName(std::string const& thread_name)
+{
+    return pthread_setname_np(thread_name.c_str()) == 0;
 }
 
 #endif
