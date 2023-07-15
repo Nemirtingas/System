@@ -198,6 +198,11 @@ bool SetCurrentThreadName(std::string const& thread_name)
     return success;
 }
 
+TranslatedMode GetTranslatedMode()
+{
+    return TranslatedMode::Unavailable;
+}
+
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
 #ifdef SYSTEM_OS_LINUX
 
@@ -348,23 +353,12 @@ bool SetCurrentThreadName(std::string const& thread_name)
     return prctl(PR_SET_NAME, thread_name.c_str()) == 0;
 }
 
-#else
-
-static int IsProcessTranslated()
+TranslatedMode GetTranslatedMode()
 {
-    int ret = 0;
-    size_t size = sizeof(ret);
-
-    // Call the sysctl and if successful return the result
-    if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) != -1)
-        return ret;
-
-    // If "sysctl.proc_translated" is not present then must be native
-    if (errno == ENOENT)
-        return 0;
-
-    return -1;
+    return TranslatedMode::Unavailable;
 }
+
+#else
 
 std::chrono::system_clock::time_point GetBootTime()
 {
@@ -543,6 +537,22 @@ std::vector<std::string> GetProcArgs()
 bool SetCurrentThreadName(std::string const& thread_name)
 {
     return pthread_setname_np(thread_name.c_str()) == 0;
+}
+
+TranslatedMode GetTranslatedMode()
+{
+    int ret = 0;
+    size_t size = sizeof(ret);
+
+    // Call the sysctl and if successful return the result
+    if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) != -1)
+        return ret == 0 ? return TranslatedMode::Native : return TranslatedMode::Translated;
+
+    // If "sysctl.proc_translated" is not present then must be native
+    if (errno == ENOENT)
+        return TranslatedMode::Native;
+
+    return TranslatedMode::Unavailable;
 }
 
 #endif
