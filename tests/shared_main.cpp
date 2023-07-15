@@ -3,6 +3,7 @@
 #include <System/SystemExports.h>
 
 #include <iostream>
+#include <memory>
 
 void shared_library_load()
 {
@@ -16,14 +17,21 @@ void shared_library_unload()
 {
 }
 
-SYSTEM_EXPORT_API(SYSTEM_EXTERN_C, std::string, SYSTEM_MODE_EXPORT, SYSTEM_CALL_DEFAULT) GetExecutablePath()
+struct result_wrapper
 {
-    return System::GetExecutablePath();
+    std::shared_ptr<std::string> v;
+};
+
+SYSTEM_EXPORT_API(SYSTEM_EXTERN_C, result_wrapper, SYSTEM_MODE_EXPORT, SYSTEM_CALL_DEFAULT) GetExecutablePath()
+{
+    result_wrapper x; x.v = std::make_shared<std::string>(System::GetExecutablePath());
+    return x;
 }
 
-SYSTEM_EXPORT_API(SYSTEM_EXTERN_C, std::string, SYSTEM_MODE_EXPORT, SYSTEM_CALL_DEFAULT) GetModulePath()
+SYSTEM_EXPORT_API(SYSTEM_EXTERN_C, result_wrapper, SYSTEM_MODE_EXPORT, SYSTEM_CALL_DEFAULT) GetModulePath()
 {
-    return System::GetModulePath();
+    result_wrapper x; x.v = std::make_shared<std::string>(System::GetModulePath());
+    return x;
 }
 
 #if defined(SYSTEM_OS_WINDOWS)
