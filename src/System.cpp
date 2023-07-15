@@ -43,6 +43,7 @@
         #include <sys/prctl.h>
     #else
         #include <sys/sysctl.h>
+        #include <mach-o/dyld.h>
         #include <mach-o/dyld_images.h>
     #endif
 
@@ -546,7 +547,7 @@ TranslatedMode GetTranslatedMode()
 
     // Call the sysctl and if successful return the result
     if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) != -1)
-        return ret == 0 ? return TranslatedMode::Native : return TranslatedMode::Translated;
+        return ret == 0 ? TranslatedMode::Native : TranslatedMode::Translated;
 
     // If "sysctl.proc_translated" is not present then must be native
     if (errno == ENOENT)
