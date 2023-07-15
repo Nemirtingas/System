@@ -104,6 +104,18 @@ TEST_CASE("Type name", "[TypeName]")
     }
 }
 
+inline std::ostream& operator<<(std::ostream& os, System::TranslatedMode mode)
+{
+    switch (mode)
+    {
+        case System::TranslatedMode::Unavailable: return os << "Unavailable";
+        case System::TranslatedMode::Native     : return os << "Native";
+        case System::TranslatedMode::Translated : return os << "Translated";
+    }
+
+    return os << "System::TranslatedMode(" << (int)mode << ')';
+}
+
 TEST_CASE("Load library", "[loadlibrary]")
 {
     System::Library::Library shared;
@@ -111,6 +123,7 @@ TEST_CASE("Load library", "[loadlibrary]")
     shared.OpenLibrary(lib_path, true);
     std::cout << "From executable: " << std::endl
               << "  Executable pid        : " << System::GetProcessId() << std::endl
+              << "  Translated mode       : " << System::GetTranslatedMode() << std::endl
               << "  Executable path       : " << System::GetExecutablePath() << std::endl
               << "  Executable module path: " << System::GetModulePath() << std::endl
               << "  Library module path   : " << shared.GetLibraryPath() << std::endl << std::endl;

@@ -24,14 +24,14 @@
 #include <vector>
 #include <cstdint>
 
+namespace System {
+
 enum class TranslatedMode : uint8_t
 {
 	Unavailable,
 	Native,
 	Translated,
 };
-
-namespace System {
 
 std::chrono::system_clock::time_point GetBootTime();
 std::chrono::microseconds GetUpTime();
