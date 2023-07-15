@@ -128,6 +128,16 @@ TEST_CASE("Load library", "[loadlibrary]")
               << "  Executable module path: " << System::GetModulePath() << std::endl
               << "  Library module path   : " << shared.GetLibraryPath() << std::endl << std::endl;
 
+    {
+        auto sharedLibraryFunction = shared.GetSymbol<std::string()>("GetExecutablePath");
+        CHECK(System::GetExecutablePath() == sharedLibraryFunction());
+    }
+
+    {
+        auto sharedLibraryFunction = shared.GetSymbol<std::string()>("GetModulePath");
+        CHECK(shared.GetLibraryPath() == sharedLibraryFunction());
+    }
+
 #if defined(SYSTEM_OS_WINDOWS)
     {
         auto tmp = System::Filesystem::Filename(System::GetExecutablePath());

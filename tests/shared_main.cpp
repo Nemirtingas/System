@@ -16,6 +16,16 @@ void shared_library_unload()
 {
 }
 
+SYSTEM_EXPORT_API(SYSTEM_EXTERN_C, std::string, SYSTEM_MODE_EXPORT, SYSTEM_CALL_DEFAULT) GetExecutablePath()
+{
+    return System::GetExecutablePath();
+}
+
+SYSTEM_EXPORT_API(SYSTEM_EXTERN_C, std::string, SYSTEM_MODE_EXPORT, SYSTEM_CALL_DEFAULT) GetModulePath()
+{
+    return System::GetModulePath();
+}
+
 #if defined(SYSTEM_OS_WINDOWS)
 
 #define VC_EXTRALEAN
