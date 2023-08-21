@@ -39,8 +39,12 @@ std::chrono::microseconds GetUpTime();
 uint64_t GetProcessId();
 // Get the current process argv
 std::vector<std::string> GetProcArgs();
-// Get User env variable
+// Get user env variable
 std::string GetEnvVar(std::string const& var);
+// Set user env variable
+bool SetEnvVar(std::string const& key, std::string const& value);
+// Unset user env variable
+bool UnsetEnvVar(std::string const& key);
 // User appdata full path
 std::string GetUserdataPath();
 // Executable full path

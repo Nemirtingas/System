@@ -17,6 +17,15 @@ int main(int argc, char *argv[])
     return Catch::Session().run(argc, argv);
 }
 
+TEST_CASE("Environment variable manipulation", "[environment_variable]")
+{
+    CHECK(System::GetEnvVar("TestEnvVar") == "TestEnvVarValue");
+    CHECK(System::SetEnvVar("TestEnvVar", "NewEnvVarValue") == true);
+    CHECK(System::GetEnvVar("TestEnvVar") == "NewEnvVarValue");
+    CHECK(System::UnsetEnvVar("TestEnvVar") == true);
+    CHECK(System::GetEnvVar("TestEnvVar") == std::string());
+}
+
 TEST_CASE("Set thread name", "[thread_name]")
 {
     CHECK(System::SetCurrentThreadName("TestThreadName") == true);

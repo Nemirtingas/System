@@ -118,6 +118,19 @@ std::string GetEnvVar(std::string const& var)
     return System::Encoding::WCharToUtf8(wVar);
 }
 
+bool SetEnvVar(std::string const& key, std::string const& value)
+{
+    std::wstring wideKey(System::Encoding::Utf8ToWChar(key));
+    std::wstring wideValue(System::Encoding::Utf8ToWChar(value));
+    return SetEnvironmentVariableW(wideKey.c_str(), wideValue.c_str()) == TRUE;
+}
+
+bool UnsetEnvVar(std::string const& key)
+{
+    std::wstring wideKey(System::Encoding::Utf8ToWChar(key));
+    return SetEnvironmentVariableW(wideKey.c_str(), nullptr) == TRUE;
+}
+
 std::string GetUserdataPath()
 {
     WCHAR szPath[4096] = {};
@@ -605,6 +618,16 @@ std::string GetEnvVar(std::string const& var)
         return std::string();
 
     return env;
+}
+
+bool SetEnvVar(std::string const& key, std::string const& value)
+{
+    return setenv(key.c_str(), value.c_str(), 1) == 0;
+}
+
+bool UnsetEnvVar(std::string const& key)
+{
+    return unsetenv(key.c_str()) == 0;
 }
 
 #endif
