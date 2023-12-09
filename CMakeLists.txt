@@ -34,6 +34,7 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/StringView.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/LoopBreak.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/TypeName.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Guid.hpp
 )
 
 add_library(system
@@ -42,6 +43,7 @@ add_library(system
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Library.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Encoding.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Guid.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/System_internals.cpp
   ${SYSTEM_HEADERS}
 )

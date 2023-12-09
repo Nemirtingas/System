@@ -6,6 +6,7 @@
 #include <System/TypeName.hpp>
 #include <System/Encoding.hpp>
 #include <System/StringSwitch.hpp>
+#include <System/Guid.hpp>
 
 #include <iostream>
 
@@ -15,6 +16,40 @@
 int main(int argc, char *argv[])
 {
     return Catch::Session().run(argc, argv);
+}
+
+TEST_CASE("Guid", "[guid]")
+{
+    System::GuidData nullGuidData = {};
+    System::Guid nullGuid;
+    System::GuidData guid1Data {
+        0x33221100,
+        0x5544,
+        0x7766,
+        0x8899,
+        0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, };
+    System::Guid guid1("33221100-5544-7766-8899-AABBCCDDEEFF");
+
+    CHECK(nullGuid == nullGuidData);
+    CHECK(nullGuid.ToString() == "00000000-0000-0000-0000-000000000000");
+    CHECK(guid1 == guid1Data);
+    CHECK(guid1.ToString() == "33221100-5544-7766-8899-aabbccddeeff");
+    CHECK(guid1.ToString(true) == "33221100-5544-7766-8899-AABBCCDDEEFF");
+    CHECK(guid1 == guid1);
+    CHECK(guid1.ToString() == "33221100-5544-7766-8899-aabbccddeeff");
+    CHECK(guid1.ToString(true) == "33221100-5544-7766-8899-AABBCCDDEEFF");
+
+    {
+        System::Guid guid(guid1);
+        CHECK(guid == guid1Data);
+    }
+    {
+        System::Guid guid(std::move(guid1));
+        CHECK(guid == guid1Data);
+    }
+
+    guid1.Clear();
+    CHECK(nullGuid == nullGuidData);
 }
 
 TEST_CASE("Environment variable manipulation", "[environment_variable]")
