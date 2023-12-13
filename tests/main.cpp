@@ -9,6 +9,7 @@
 #include <System/Guid.hpp>
 
 #include <iostream>
+#include <map>
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
@@ -30,26 +31,87 @@ TEST_CASE("Guid", "[guid]")
         0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, };
     System::Guid guid1("33221100-5544-7766-8899-AABBCCDDEEFF");
 
-    CHECK(nullGuid == nullGuidData);
     CHECK(nullGuid.ToString() == "00000000-0000-0000-0000-000000000000");
-    CHECK(guid1 == guid1Data);
     CHECK(guid1.ToString() == "33221100-5544-7766-8899-aabbccddeeff");
     CHECK(guid1.ToString(true) == "33221100-5544-7766-8899-AABBCCDDEEFF");
-    CHECK(guid1 == guid1);
     CHECK(guid1.ToString() == "33221100-5544-7766-8899-aabbccddeeff");
     CHECK(guid1.ToString(true) == "33221100-5544-7766-8899-AABBCCDDEEFF");
 
+    CHECK(memcmp(&nullGuid, &nullGuidData, sizeof(System::GuidData)) == 0);
+    CHECK(memcmp(&guid1, &guid1Data, sizeof(System::GuidData)) == 0);
+
     {
         System::Guid guid(guid1);
-        CHECK(guid == guid1Data);
+        CHECK(memcmp(&guid, &guid1Data, sizeof(System::GuidData)) == 0);
     }
     {
         System::Guid guid(std::move(guid1));
-        CHECK(guid == guid1Data);
+        CHECK(memcmp(&guid, &guid1Data, sizeof(System::GuidData)) == 0);
     }
 
     guid1.Clear();
     CHECK(nullGuid == nullGuidData);
+    
+    // Check operators
+    {
+        System::GuidData smaller{ 0x00000001, 0x0002, 0x0003, 0x0004, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a };
+        System::GuidData bigger{ 0x00000001, 0x0002, 0x0003, 0x0004, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a };
+
+        CHECK(smaller == smaller);
+
+        CHECK(smaller == bigger);
+        CHECK_FALSE(smaller != bigger);
+        CHECK_FALSE(smaller < bigger);
+        CHECK(smaller <= bigger);
+        CHECK_FALSE(smaller > bigger);
+        CHECK(smaller >= bigger);
+
+        bigger.Dword = 2;
+        CHECK_FALSE(smaller == bigger);
+        CHECK(smaller != bigger);
+        CHECK(smaller < bigger);
+        CHECK(smaller <= bigger);
+        CHECK_FALSE(smaller > bigger);
+        CHECK_FALSE(smaller >= bigger);
+
+        bigger.Dword = 1;
+        bigger.Short1 = 3;
+        CHECK_FALSE(smaller == bigger);
+        CHECK(smaller != bigger);
+        CHECK(smaller < bigger);
+        CHECK(smaller <= bigger);
+        CHECK_FALSE(smaller > bigger);
+        CHECK_FALSE(smaller >= bigger);
+
+        bigger.Short1 = 2;
+        bigger.Short2 = 4;
+        CHECK_FALSE(smaller == bigger);
+        CHECK(smaller != bigger);
+        CHECK(smaller < bigger);
+        CHECK(smaller <= bigger);
+        CHECK_FALSE(smaller > bigger);
+        CHECK_FALSE(smaller >= bigger);
+    }
+
+    {
+        System::Guid smaller("98e234e5-303e-75cc-b350-980d56978967");
+        System::Guid bigger("a17b1eb8-797b-2c0a-8f30-03777bdf2add");
+
+        CHECK_FALSE(smaller == bigger);
+        CHECK(smaller != bigger);
+        CHECK(smaller < bigger);
+        CHECK(smaller <= bigger);
+        CHECK_FALSE(smaller > bigger);
+        CHECK_FALSE(smaller >= bigger);
+    }
+
+    // Map can use Guid as key
+    std::map<System::Guid, std::string> map;
+    map[System::GuidData{ 0x00000001, 0x0002, 0x0003, 0x0004, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a }] = "1";
+    map[System::GuidData{ 0x00000002, 0x0002, 0x0003, 0x0004, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a }] = "2";
+
+    CHECK(map[System::GuidData{ 0x00000001, 0x0002, 0x0003, 0x0004, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a }] == "1");
+    CHECK(map[System::GuidData{ 0x00000002, 0x0002, 0x0003, 0x0004, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a }] == "2");
 }
 
 TEST_CASE("Environment variable manipulation", "[environment_variable]")

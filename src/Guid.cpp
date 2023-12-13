@@ -66,16 +66,16 @@ bool Guid::FromString(std::string const& stringGuid)
         return false;
 
     SSCANF(stringGuid.c_str(), GUID_LOWER_STRING_FORMAT,
-        reinterpret_cast<uint32_t*>(&_Data.Bytes[0]),
-        reinterpret_cast<uint16_t*>(&_Data.Bytes[4]),
-        reinterpret_cast<uint16_t*>(&_Data.Bytes[6]),
-        reinterpret_cast<uint16_t*>(&_Data.Bytes[8]),
-        reinterpret_cast<uint8_t*>(&_Data.Bytes[10]),
-        reinterpret_cast<uint8_t*>(&_Data.Bytes[11]),
-        reinterpret_cast<uint8_t*>(&_Data.Bytes[12]),
-        reinterpret_cast<uint8_t*>(&_Data.Bytes[13]),
-        reinterpret_cast<uint8_t*>(&_Data.Bytes[14]),
-        reinterpret_cast<uint8_t*>(&_Data.Bytes[15]));
+        reinterpret_cast<uint32_t*>(&reinterpret_cast<uint8_t*>(&_Data)[0]),
+        reinterpret_cast<uint16_t*>(&reinterpret_cast<uint8_t*>(&_Data)[4]),
+        reinterpret_cast<uint16_t*>(&reinterpret_cast<uint8_t*>(&_Data)[6]),
+        reinterpret_cast<uint16_t*>(&reinterpret_cast<uint8_t*>(&_Data)[8]),
+        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[10]),
+        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[11]),
+        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[12]),
+        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[13]),
+        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[14]),
+        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[15]));
 
 	return true;
 }
@@ -85,16 +85,16 @@ std::string Guid::ToString(bool upperCaseHex) const
     std::string res(36, '\0');
 
     snprintf(&res[0], 37, upperCaseHex ? GUID_UPPER_STRING_FORMAT : GUID_LOWER_STRING_FORMAT,
-        *reinterpret_cast<const uint32_t*>(&_Data.Bytes[0]),
-        *reinterpret_cast<const uint16_t*>(&_Data.Bytes[4]),
-        *reinterpret_cast<const uint16_t*>(&_Data.Bytes[6]),
-        *reinterpret_cast<const uint16_t*>(&_Data.Bytes[8]),
-        *reinterpret_cast<const uint8_t*>(&_Data.Bytes[10]),
-        *reinterpret_cast<const uint8_t*>(&_Data.Bytes[11]),
-        *reinterpret_cast<const uint8_t*>(&_Data.Bytes[12]),
-        *reinterpret_cast<const uint8_t*>(&_Data.Bytes[13]),
-        *reinterpret_cast<const uint8_t*>(&_Data.Bytes[14]),
-        *reinterpret_cast<const uint8_t*>(&_Data.Bytes[15]));
+        *reinterpret_cast<const uint32_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[0]),
+        *reinterpret_cast<const uint16_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[4]),
+        *reinterpret_cast<const uint16_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[6]),
+        *reinterpret_cast<const uint16_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[8]),
+        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[10]),
+        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[11]),
+        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[12]),
+        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[13]),
+        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[14]),
+        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[15]));
 
     return res;
 }
