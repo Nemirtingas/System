@@ -32,9 +32,9 @@ namespace CpuFeatures {
             unsigned int ebx;
             unsigned int ecx;
             unsigned int edx;
-        };
+        } Registers;
 
-        unsigned int registers[4];
+        unsigned int RegisterArray[4];
     };
 
     CpuId_t CpuId(int functionIndex);
@@ -220,7 +220,7 @@ namespace CpuFeatures {
 
     inline constexpr bool HasFeature(CpuId_t cpuId, CpuFeatures::CpuFeature_t feature)
     {
-        return (cpuId.registers[feature.FeatureRegister] & (1 << feature.FeatureFlag)) != 0;
+        return (cpuId.RegisterArray[feature.FeatureRegister] & (1 << feature.FeatureFlag)) != 0;
     }
 }// namespace CpuFeatures
 }// namespace System

@@ -28,7 +28,7 @@ namespace CpuFeatures {
         CpuId_t cpuId;
         __asm__ __volatile__(
             "cpuid"
-            : "=a"(cpuId.eax), "=b"(cpuId.ebx), "=c"(cpuId.ecx), "=d"(cpuId.edx)
+            : "=a"(cpuId.Registers.eax), "=b"(cpuId.Registers.ebx), "=c"(cpuId.Registers.ecx), "=d"(cpuId.Registers.edx)
             : "a"(functionIndex)
         );
 
@@ -44,7 +44,7 @@ namespace CpuFeatures {
     CpuId_t CpuId(int functionIndex)
     {
         CpuId_t cpuId;
-        __cpuidex((int*)cpuId.registers, functionIndex, 0);
+        __cpuidex((int*)cpuId.RegisterArray, functionIndex, 0);
 
         return cpuId;
     }
