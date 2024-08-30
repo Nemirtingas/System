@@ -38,8 +38,8 @@ TEST_CASE("CpuId", "[cpuid]")
     *(int32_t*)&(cpuName[4]) = cpuId0.edx;
     *(int32_t*)&(cpuName[8]) = cpuId0.ecx;
 
-    std::cout << "CPU ID      : " << cpuName << std::endl;
-#define CHECK_CPU_FEATURE(CPUID, FEATURE) printf("%-12s: %s\n", #FEATURE, System::CpuFeatures::HasFeature(CPUID, System::CpuFeatures:: FEATURE) ? "YES":"NO")
+    std::cout << "CPU ID             : " << cpuName << std::endl;
+#define CHECK_CPU_FEATURE(CPUID, FEATURE) printf("%-19s: %s\n", #FEATURE, System::CpuFeatures::HasFeature(CPUID, System::CpuFeatures:: FEATURE) ? "YES":"NO")
     if (cpuId0.eax >= 1)
     {
         System::CpuFeatures::CpuId_t cpuId1 = System::CpuFeatures::CpuId(1);
