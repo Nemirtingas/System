@@ -7,6 +7,7 @@
 #include <System/Encoding.hpp>
 #include <System/StringSwitch.hpp>
 #include <System/Guid.hpp>
+#include <System/SystemMacro.h>
 
 #include <iostream>
 #include <map>
@@ -14,9 +15,26 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
+#define TEST_MACRO_1(a1) a1
+#define TEST_MACRO_2(a1, a2) TEST_MACRO_1(a1) + a2
+#define TEST_MACRO_3(a1, a2, a3) TEST_MACRO_2(a1, a2) + a3
+#define TEST_MACRO_4(a1, a2, a3, a4) TEST_MACRO_3(a1, a2, a3) + a4
+#define TEST_MACRO_5(a1, a2, a3, a4, a5) TEST_MACRO_4(a1, a2, a3, a4) + a5
+
 int main(int argc, char *argv[])
 {
     return Catch::Session().run(argc, argv);
+}
+
+TEST_CASE("Macros", "[macros]")
+{
+    int x = 8;
+
+    CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1) == 1);
+    CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1, x) == 9);
+    CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1, 2, x) == 11);
+    CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1, 2, 3, 4) == 10);
+    CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, x, 2, 3, 4, 5) == 22);
 }
 
 TEST_CASE("Guid", "[guid]")
