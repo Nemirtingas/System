@@ -9,6 +9,7 @@
 #include <System/Guid.hpp>
 #include <System/SystemMacro.h>
 #include <System/SystemCompiler.h>
+#include <System/SystemCPUExtensions.h>
 
 #include <iostream>
 #include <map>
@@ -25,6 +26,197 @@
 int main(int argc, char *argv[])
 {
     return Catch::Session().run(argc, argv);
+}
+
+TEST_CASE("CpuId", "[cpuid]")
+{
+#if defined(SYSTEM_ARCH_X64) || defined(SYSTEM_ARCH_X86)
+    char cpuName[13]{};
+
+    System::CpuFeatures::CpuId_t cpuId0 = System::CpuFeatures::CpuId(0);
+    *(int32_t*)&(cpuName[0]) = cpuId0.ebx;
+    *(int32_t*)&(cpuName[4]) = cpuId0.edx;
+    *(int32_t*)&(cpuName[8]) = cpuId0.ecx;
+
+    std::cout << "CPU ID      : " << cpuName << std::endl;
+#define CHECK_CPU_FEATURE(CPUID, FEATURE) printf("%-12s: %s\n", #FEATURE, System::CpuFeatures::HasFeature(CPUID, System::CpuFeatures:: FEATURE) ? "YES":"NO")
+    if (cpuId0.eax >= 1)
+    {
+        System::CpuFeatures::CpuId_t cpuId1 = System::CpuFeatures::CpuId(1);
+        CHECK_CPU_FEATURE(cpuId1, FPU);
+        CHECK_CPU_FEATURE(cpuId1, VME);
+        CHECK_CPU_FEATURE(cpuId1, DE);
+        CHECK_CPU_FEATURE(cpuId1, PSE);
+        CHECK_CPU_FEATURE(cpuId1, TSC);
+        CHECK_CPU_FEATURE(cpuId1, MSR);
+        CHECK_CPU_FEATURE(cpuId1, PAE);
+        CHECK_CPU_FEATURE(cpuId1, MCE);
+        CHECK_CPU_FEATURE(cpuId1, CX8);
+        CHECK_CPU_FEATURE(cpuId1, APIC);
+        //CHECK_CPU_FEATURE(cpuId1, INDEX_1_EDX_10);
+        CHECK_CPU_FEATURE(cpuId1, SEP);
+        CHECK_CPU_FEATURE(cpuId1, MTRR);
+        CHECK_CPU_FEATURE(cpuId1, PGE);
+        CHECK_CPU_FEATURE(cpuId1, MCA);
+        CHECK_CPU_FEATURE(cpuId1, CMOV);
+        CHECK_CPU_FEATURE(cpuId1, PAT);
+        CHECK_CPU_FEATURE(cpuId1, PSE36);
+        CHECK_CPU_FEATURE(cpuId1, PSN);
+        CHECK_CPU_FEATURE(cpuId1, CLFSH);
+        //CHECK_CPU_FEATURE(cpuId1, INDEX_1_EDX_20);
+        CHECK_CPU_FEATURE(cpuId1, DS);
+        CHECK_CPU_FEATURE(cpuId1, ACPI);
+        CHECK_CPU_FEATURE(cpuId1, MMX);
+        CHECK_CPU_FEATURE(cpuId1, FXSR);
+        CHECK_CPU_FEATURE(cpuId1, SSE);
+        CHECK_CPU_FEATURE(cpuId1, SSE2);
+        CHECK_CPU_FEATURE(cpuId1, SS);
+        CHECK_CPU_FEATURE(cpuId1, HTT);
+        CHECK_CPU_FEATURE(cpuId1, TM);
+        //CHECK_CPU_FEATURE(cpuId1, INDEX_1_EDX_30);
+        CHECK_CPU_FEATURE(cpuId1, PBE);
+        CHECK_CPU_FEATURE(cpuId1, SSE3);
+        CHECK_CPU_FEATURE(cpuId1, PCLMULQDQ);
+        CHECK_CPU_FEATURE(cpuId1, DTES64);
+        CHECK_CPU_FEATURE(cpuId1, MONITOR);
+        CHECK_CPU_FEATURE(cpuId1, DS_CPL);
+        CHECK_CPU_FEATURE(cpuId1, VMX);
+        CHECK_CPU_FEATURE(cpuId1, SMX);
+        CHECK_CPU_FEATURE(cpuId1, EIST);
+        CHECK_CPU_FEATURE(cpuId1, TM2);
+        CHECK_CPU_FEATURE(cpuId1, SSSE3);
+        CHECK_CPU_FEATURE(cpuId1, CNXT_ID);
+        CHECK_CPU_FEATURE(cpuId1, SDBG);
+        CHECK_CPU_FEATURE(cpuId1, FMA);
+        CHECK_CPU_FEATURE(cpuId1, CMPXCHG16B);
+        CHECK_CPU_FEATURE(cpuId1, XTPRUPDCTRL);
+        CHECK_CPU_FEATURE(cpuId1, PDCM);
+        CHECK_CPU_FEATURE(cpuId1, PCID);
+        CHECK_CPU_FEATURE(cpuId1, DCA);
+        CHECK_CPU_FEATURE(cpuId1, SSE4_1);
+        CHECK_CPU_FEATURE(cpuId1, SSE4_2);
+        CHECK_CPU_FEATURE(cpuId1, X2APIC);
+        CHECK_CPU_FEATURE(cpuId1, MOVBE);
+        CHECK_CPU_FEATURE(cpuId1, POPCNT);
+        CHECK_CPU_FEATURE(cpuId1, TSC_DEADLINE);
+        CHECK_CPU_FEATURE(cpuId1, AES);
+        CHECK_CPU_FEATURE(cpuId1, XSAVE);
+        CHECK_CPU_FEATURE(cpuId1, OSXSAVE);
+        CHECK_CPU_FEATURE(cpuId1, AVX);
+        CHECK_CPU_FEATURE(cpuId1, F16C);
+        CHECK_CPU_FEATURE(cpuId1, RDRAND);
+        //CHECK_CPU_FEATURE(cpuId1, INDEX_1_ECX_31);
+    }
+
+    if (cpuId0.eax >= 7)
+    {
+        System::CpuFeatures::CpuId_t cpuId7 = System::CpuFeatures::CpuId(7);
+
+        CHECK_CPU_FEATURE(cpuId7, FSGSBASE);
+        CHECK_CPU_FEATURE(cpuId7, TSC_ADJUST);
+        CHECK_CPU_FEATURE(cpuId7, SGX);
+        CHECK_CPU_FEATURE(cpuId7, BMI1);
+        CHECK_CPU_FEATURE(cpuId7, HLE);
+        CHECK_CPU_FEATURE(cpuId7, AVX2);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EBX_6);
+        CHECK_CPU_FEATURE(cpuId7, SMEP);
+        CHECK_CPU_FEATURE(cpuId7, BMI2);
+        CHECK_CPU_FEATURE(cpuId7, ERMS);
+        CHECK_CPU_FEATURE(cpuId7, INVPCID);
+        CHECK_CPU_FEATURE(cpuId7, RTM);
+        CHECK_CPU_FEATURE(cpuId7, RDT_M);
+        CHECK_CPU_FEATURE(cpuId7, DEPR_FPU_CS_DS);
+        CHECK_CPU_FEATURE(cpuId7, MPX);
+        CHECK_CPU_FEATURE(cpuId7, RDT_A);
+        CHECK_CPU_FEATURE(cpuId7, AVX512F);
+        CHECK_CPU_FEATURE(cpuId7, AVX512DQ);
+        CHECK_CPU_FEATURE(cpuId7, RDSEED);
+        CHECK_CPU_FEATURE(cpuId7, ADX);
+        CHECK_CPU_FEATURE(cpuId7, SMAP);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_IFMA);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EBX_22);
+        CHECK_CPU_FEATURE(cpuId7, CLFLUSHOPT);
+        CHECK_CPU_FEATURE(cpuId7, CLWB);
+        CHECK_CPU_FEATURE(cpuId7, TRACE);
+        CHECK_CPU_FEATURE(cpuId7, AVX512PF);
+        CHECK_CPU_FEATURE(cpuId7, AVX512ER);
+        CHECK_CPU_FEATURE(cpuId7, AVX512CD);
+        CHECK_CPU_FEATURE(cpuId7, SHA);
+        CHECK_CPU_FEATURE(cpuId7, AVX512BW);
+        CHECK_CPU_FEATURE(cpuId7, AVX512VL);
+        CHECK_CPU_FEATURE(cpuId7, PREFETCHWT1);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_VBMI);
+        CHECK_CPU_FEATURE(cpuId7, UMIP);
+        CHECK_CPU_FEATURE(cpuId7, PKU);
+        CHECK_CPU_FEATURE(cpuId7, OSPKE);
+        CHECK_CPU_FEATURE(cpuId7, WAITPKG);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_VBMI2);
+        CHECK_CPU_FEATURE(cpuId7, SHSTK);
+        CHECK_CPU_FEATURE(cpuId7, GFNI);
+        CHECK_CPU_FEATURE(cpuId7, VAES);
+        CHECK_CPU_FEATURE(cpuId7, VPCLMULQDQ);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_VNNI);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_BITALG);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_ECX_13);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_VPOPCNTDQ);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_ECX_15);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_ECX_16);
+        CHECK_CPU_FEATURE(cpuId7, RDPID);
+        CHECK_CPU_FEATURE(cpuId7, KL);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_ECX_24);
+        CHECK_CPU_FEATURE(cpuId7, CLDEMOTE);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_ECX_26);
+        CHECK_CPU_FEATURE(cpuId7, MOVDIRI);
+        CHECK_CPU_FEATURE(cpuId7, MOVDIR64B);
+        CHECK_CPU_FEATURE(cpuId7, ENQCMD);
+        CHECK_CPU_FEATURE(cpuId7, SGX_LC);
+        CHECK_CPU_FEATURE(cpuId7, PKS);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_0);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_1);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_4VNNIW);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_4FMAPS);
+        CHECK_CPU_FEATURE(cpuId7, FSRM);
+        CHECK_CPU_FEATURE(cpuId7, UINTR);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_6);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_7);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_VP2INTERSECT);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_9);
+        CHECK_CPU_FEATURE(cpuId7, MD_CLEAR);
+        CHECK_CPU_FEATURE(cpuId7, RTM_ALWAYS_ABORT);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_12);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_13);
+        CHECK_CPU_FEATURE(cpuId7, SERIALIZE);
+        CHECK_CPU_FEATURE(cpuId7, HYBRID);
+        CHECK_CPU_FEATURE(cpuId7, TSXLDTRK);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_17);
+        CHECK_CPU_FEATURE(cpuId7, PCONFIG);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_19);
+        CHECK_CPU_FEATURE(cpuId7, IBT);
+        //CHECK_CPU_FEATURE(cpuId7, INDEX_7_EDX_21);
+        CHECK_CPU_FEATURE(cpuId7, AMX_BF16);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_FP16);
+        CHECK_CPU_FEATURE(cpuId7, AMX_TILE);
+        CHECK_CPU_FEATURE(cpuId7, AMX_INT8);
+        CHECK_CPU_FEATURE(cpuId7, IBRS_IBPB);
+        CHECK_CPU_FEATURE(cpuId7, STIBP);
+        CHECK_CPU_FEATURE(cpuId7, L1D_FLUSH);
+        CHECK_CPU_FEATURE(cpuId7, ARCH_CAPABILITIES);
+        CHECK_CPU_FEATURE(cpuId7, CORE_CAPABILITIES);
+        CHECK_CPU_FEATURE(cpuId7, SSBD);
+        CHECK_CPU_FEATURE(cpuId7, AVX_VNNI);
+        CHECK_CPU_FEATURE(cpuId7, AVX512_BF16);
+        CHECK_CPU_FEATURE(cpuId7, FZLRM);
+        CHECK_CPU_FEATURE(cpuId7, FSRS);
+        CHECK_CPU_FEATURE(cpuId7, FSRCS);
+        CHECK_CPU_FEATURE(cpuId7, HRESET);
+        CHECK_CPU_FEATURE(cpuId7, LAM);
+    }
+
+#undef CHECK_CPU_FEATURE
+
+#elif defined(SYSTEM_ARCH_ARM64) || defined(SYSTEM_ARCH_ARM)
+
+#endif
 }
 
 TEST_CASE("Macros", "[macros]")

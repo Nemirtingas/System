@@ -22,6 +22,7 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Filesystem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Library.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCompiler.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCPUExtensions.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemDetector.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemExports.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemInline.h
@@ -40,12 +41,13 @@ set(SYSTEM_HEADERS
 )
 
 add_library(system
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/System.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Filesystem.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Library.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/CPUExtentions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Encoding.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Filesystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Guid.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Library.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/System.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/System_internals.cpp
   ${SYSTEM_HEADERS}
 )
