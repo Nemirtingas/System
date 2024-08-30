@@ -227,5 +227,7 @@ namespace CpuFeatures {
 
 #elif defined(SYSTEM_ARCH_ARM) || defined(SYSTEM_ARCH_ARM64)
 
+// ARM's cpuid instructions are reserved to kernel mode
+
 #endif
 
