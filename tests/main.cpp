@@ -10,6 +10,7 @@
 #include <System/SystemMacro.h>
 #include <System/SystemCompiler.h>
 #include <System/SystemCPUExtensions.h>
+#include <System/LoopBreak.hpp>
 
 #include <iostream>
 #include <map>
@@ -26,6 +27,34 @@
 int main(int argc, char *argv[])
 {
     return Catch::Session().run(argc, argv);
+}
+
+TEST_CASE("Nested loop break", "[nested loop break]")
+{
+    int valueI = 0, valueJ = 0, valueK = 0;
+    for (int i = 0; i < 0xff; ++i) SYSTEM_LOOP_NAME(VALUE_I)
+    {
+        ++valueI;
+        for (int j = 0; j < 5; ++j) SYSTEM_LOOP_NAME(VALUE_J)
+        {
+            for (int k = 0; k < 16; ++k)
+            {
+                if (k > 0x8)
+                    SYSTEM_LOOP_CONTINUE(VALUE_I);
+
+                if (i > 3)
+                    SYSTEM_LOOP_BREAK(VALUE_I);
+
+                ++valueK;
+            }
+
+            ++valueJ;
+        }
+    }
+
+    CHECK(valueK == 36);
+    CHECK(valueJ == 0);
+    CHECK(valueI == 5);
 }
 
 TEST_CASE("CpuId", "[cpuid]")
