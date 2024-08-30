@@ -83,7 +83,7 @@ public:
     constexpr BasicStringView(const char_type* str, size_t length) : _string(str), _length(length)
     {}
 
-    template<template<class> typename CharTraitsT, template<class> typename AllocatorT>
+    template<template<class> class CharTraitsT, template<class> class AllocatorT>
     constexpr BasicStringView(std::basic_string<char_type, CharTraitsT<char_type>, AllocatorT<char_type>> const& str) : _string(str.data()), _length(str.length())
     {}
 
