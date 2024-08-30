@@ -8,6 +8,7 @@
 #include <System/StringSwitch.hpp>
 #include <System/Guid.hpp>
 #include <System/SystemMacro.h>
+#include <System/SystemCompiler.h>
 
 #include <iostream>
 #include <map>
@@ -29,7 +30,6 @@ int main(int argc, char *argv[])
 TEST_CASE("Macros", "[macros]")
 {
     int x = 8;
-
     CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1) == 1);
     CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1, x) == 9);
     CHECK(SYSTEM_MACRO_CALL_OVERLOAD(TEST_MACRO_, 1, 2, x) == 11);
@@ -354,6 +354,9 @@ TEST_CASE("Load library", "[loadlibrary]")
     shared.OpenLibrary(lib_path, true);
     std::cout << "From executable: " << std::endl
               << "  Executable pid        : " << System::GetProcessId() << std::endl
+              << "  Operating System      : " << System::os_name << std::endl
+              << "  System architecture   : " << System::arch_name << std::endl
+              << "  Compiler              : " << System::compiler_name << std::endl
               << "  Translated mode       : " << System::GetTranslatedMode() << std::endl
               << "  Executable path       : " << System::GetExecutablePath() << std::endl
               << "  Executable module path: " << System::GetModulePath() << std::endl

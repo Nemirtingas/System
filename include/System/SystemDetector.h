@@ -84,22 +84,28 @@ namespace System {
     static constexpr OperatingSystem os =
 #if defined(SYSTEM_OS_WINDOWS)
     OperatingSystem::Windows;
+    static constexpr const char os_name[] = "Windows";
 #elif defined(SYSTEM_OS_LINUX)
     OperatingSystem::Linux;
+    static constexpr const char os_name[] = "Linux";
 #elif defined(SYSTEM_OS_APPLE)
     OperatingSystem::Apple;
+    static constexpr const char os_name[] = "Apple";
 #endif
 
     static constexpr Arch arch =
 #if defined(SYSTEM_ARCH_X86)
     Arch::x86;
+    static constexpr const char arch_name[] = "x86";
 #elif defined(SYSTEM_ARCH_X64)
 	Arch::x64;
+    static constexpr const char arch_name[] = "x64";
 #elif defined(SYSTEM_ARCH_ARM)
 	Arch::arm;
+    static constexpr const char arch_name[] = "arm";
 #elif defined(SYSTEM_ARCH_ARM64)
     Arch::arm64;
+    static constexpr const char arch_name[] = "arm64";
 #endif
-
 }
 #endif

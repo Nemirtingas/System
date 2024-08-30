@@ -21,8 +21,10 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemMacro.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Filesystem.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Library.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCompiler.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemDetector.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemExports.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemInline.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/String.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ThreadPool.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding.hpp
