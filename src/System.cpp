@@ -253,15 +253,12 @@ std::chrono::system_clock::time_point GetBootTime()
 
 std::string GetExecutablePath()
 {
-    std::string exec_path("./");
-
-    char link[2048] = {};
-    if (readlink("/proc/self/exe", link, sizeof(link)) > 0)
-    {
-        exec_path = link;
-    }
+    std::string execPath(System::ExpandSymlink("/proc/self/exe"));
     
-    return exec_path;
+    if (execPath.empty())
+        return "./";
+
+    return execPath;
 }
 
 std::string GetModulePath()
@@ -271,7 +268,7 @@ std::string GetModulePath()
     struct dirent* dir_entry;
     std::string file_path;
     std::string res;
-    uint64_t handle = (uint64_t)&GetModulePath;
+    uint64_t handle = (uint64_t)(uintptr_t)&GetModulePath;
     uint64_t low, high;
     char* tmp;
 

@@ -28,8 +28,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt install -y gcc-multilib # needed for 32-bit builds
-          sudo apt install -y g++-multilib
+          sudo apt install -y gcc-multilib g++-multilib # needed for 32-bit builds
           
           # write a cmake toolchain file to force 32-bit compilation
           cat >cmake_32_build.toolchain <<EOL
