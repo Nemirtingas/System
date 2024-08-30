@@ -53,15 +53,6 @@ jobs:
           sudo apt-get update
           sudo apt install -y clang gcc-multilib g++-multilib # needed for 32-bit builds
           
-          # write a cmake toolchain file to force 32-bit compilation
-          cat >cmake_32_build.toolchain <<EOL
-          set(CMAKE_SYSTEM_NAME Linux)
-          
-          set( CMAKE_C_FLAGS_INIT "-m32" )
-          set( CMAKE_CXX_FLAGS_INIT "-m32" )
-          set( CMAKE_SIZEOF_VOID_P 4 )
-          EOL
-          
           cat >cmake_32_clang_build.toolchain <<EOL
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
           set(CMAKE_SYSTEM_NAME Linux)
@@ -91,8 +82,8 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang11.cmake
           set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wsizeof-array-div -Wtautological-overlap-compare -Wtautological-compare -Wtautological-bitwise-compare -Wbitwise-conditional-parentheses -Wmisleading-indentation -Wxor-used-as-pow")
           
-          set( CMAKE_C_FLAGS_INIT "-m32" "${COMMON_WARN_FLAGS} ${C_WARN_FLAGS}")
-          set( CMAKE_CXX_FLAGS_INIT "-m32" "${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
+          set( CMAKE_C_FLAGS_INIT "-m32 ${COMMON_WARN_FLAGS} ${C_WARN_FLAGS}")
+          set( CMAKE_CXX_FLAGS_INIT "-m32 ${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
           set( CMAKE_SIZEOF_VOID_P 4 )
           EOL
           
