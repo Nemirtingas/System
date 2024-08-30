@@ -22,7 +22,30 @@ jobs:
           
       - uses: lukka/get-cmake@latest
 
-      - name: Linux tests (x32)
+      - name: Linux tests gcc (x32)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x32' }}
+        shell: bash
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt install -y gcc-multilib g++-multilib # needed for 32-bit builds
+          
+          # write a cmake toolchain file to force 32-bit compilation
+          cat >cmake_32_build.toolchain <<EOL
+          set(CMAKE_SYSTEM_NAME Linux)
+          
+          set( CMAKE_C_FLAGS_INIT "-m32" )
+          set( CMAKE_CXX_FLAGS_INIT "-m32" )
+          set( CMAKE_SIZEOF_VOID_P 4 )
+          EOL
+          
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
+          cmake --build build
+          export TestEnvVar="TestEnvVarValue"
+          #find build
+          build/test_app
+
+      - name: Linux tests clang (x32)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x32' }}
         shell: bash
         run: |
@@ -43,8 +66,8 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
           set(CMAKE_SYSTEM_NAME Linux)
           
-          set(CMAKE_C_COMPILER clang-15 CACHE INTERNAL "C compiler")
-          set(CMAKE_CXX_COMPILER clang++-15 CACHE INTERNAL "C++ compiler")
+          set(CMAKE_C_COMPILER clang-14 CACHE INTERNAL "C compiler")
+          set(CMAKE_CXX_COMPILER clang++-14 CACHE INTERNAL "C++ compiler")
           
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang_gcc.cmake
           set(COMMON_WARN_FLAGS "-pipe -fno-common -Wall -Wextra -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -Wconversion -pedantic -pedantic-errors")
@@ -68,23 +91,28 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang11.cmake
           set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wsizeof-array-div -Wtautological-overlap-compare -Wtautological-compare -Wtautological-bitwise-compare -Wbitwise-conditional-parentheses -Wmisleading-indentation -Wxor-used-as-pow")
           
-          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang15.cmake
-          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Warray-parameter")
-          
           set( CMAKE_C_FLAGS_INIT "-m32" "${COMMON_WARN_FLAGS} ${C_WARN_FLAGS}")
           set( CMAKE_CXX_FLAGS_INIT "-m32" "${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
           set( CMAKE_SIZEOF_VOID_P 4 )
           EOL
           
-          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
           cmake --build build
-          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build_clang
-          cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
           #find build
           build/test_app
 
-      - name: Linux tests (x64)
+      - name: Linux tests gcc (x64)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
+        shell: bash
+        run: |
+          cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
+          cmake --build build
+          export TestEnvVar="TestEnvVarValue"
+          #find build
+          build/test_app
+
+      - name: Linux tests clang (x64)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
         shell: bash
         run: |
@@ -95,8 +123,8 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
           set(CMAKE_SYSTEM_NAME Linux)
           
-          set(CMAKE_C_COMPILER clang-15 CACHE INTERNAL "C compiler")
-          set(CMAKE_CXX_COMPILER clang++-15 CACHE INTERNAL "C++ compiler")
+          set(CMAKE_C_COMPILER clang-14 CACHE INTERNAL "C compiler")
+          set(CMAKE_CXX_COMPILER clang++-14 CACHE INTERNAL "C++ compiler")
           
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang_gcc.cmake
           set(COMMON_WARN_FLAGS "-pipe -fno-common -Wall -Wextra -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -Wconversion -pedantic -pedantic-errors")
@@ -120,21 +148,15 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang11.cmake
           set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wsizeof-array-div -Wtautological-overlap-compare -Wtautological-compare -Wtautological-bitwise-compare -Wbitwise-conditional-parentheses -Wmisleading-indentation -Wxor-used-as-pow")
           
-          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang15.cmake
-          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Warray-parameter")
-          
           set( CMAKE_C_FLAGS_INIT "${COMMON_WARN_FLAGS} ${C_WARN_FLAGS}")
           set( CMAKE_CXX_FLAGS_INIT "${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
           EOL
           
-          cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_64_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
           cmake --build build
-          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_64_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build_clang
-          cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
           #find build
           build/test_app
-          build_clang/test_app
           
       - name: MacOS tests
         if: matrix.os == 'macos-latest'
