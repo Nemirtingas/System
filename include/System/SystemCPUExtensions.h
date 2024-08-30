@@ -24,20 +24,17 @@
 #if defined(SYSTEM_ARCH_X86) || defined(SYSTEM_ARCH_X64)
 namespace System {
 namespace CpuFeatures {
-    struct CpuId_t
+    union CpuId_t
     {
-        union
+        struct
         {
-            struct
-            {
-                unsigned int eax;
-                unsigned int ebx;
-                unsigned int ecx;
-                unsigned int edx;
-            };
-
-            unsigned int registers[4];
+            unsigned int eax;
+            unsigned int ebx;
+            unsigned int ecx;
+            unsigned int edx;
         };
+
+        unsigned int registers[4];
     };
 
     CpuId_t CpuId(int functionIndex);
