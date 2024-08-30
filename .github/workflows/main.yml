@@ -3,23 +3,49 @@ name: CI
 on: [push]
 jobs:
   job:
-    name: ${{ matrix.os }}-cmake-build
+    name: ${{ matrix.os }}-${{ matrix.platform }}-cmake-build
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [x32, x64]
+        exclude:
+        - os: macos-latest
+          platform: x32
             
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
           
       - uses: lukka/get-cmake@latest
-        
-      - name: Linux tests
-        if: matrix.os == 'ubuntu-latest'
+
+      - name: Linux tests (x32)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x32' }}
+        shell: bash
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt install -y gcc-multilib # needed for 32-bit builds
+          sudo apt install -y g++-multilib
+          
+          # write a cmake toolchain file to force 32-bit compilation
+          cat >cmake_32_build.toolchain <<EOL
+          set( CMAKE_C_FLAGS_INIT "-m32" )
+          set( CMAKE_CXX_FLAGS_INIT "-m32" )
+          set( CMAKE_SIZEOF_VOID_P 4 )
+          EOL
+
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
+          cmake --build build
+          export TestEnvVar="TestEnvVarValue"
+          #find build
+          build/test_app
+
+      - name: Linux tests (x64)
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
         shell: bash
         run: |
           cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
@@ -38,11 +64,21 @@ jobs:
           #find build
           build/test_app
           
-      - name: Windows tests
-        if: matrix.os == 'windows-latest'
+      - name: Windows tests (x32)
+        if: ${{ matrix.os == 'windows-latest' && matrix.platform == 'x32' }}
         shell: powershell
         run: |
-          cmake ${{ github.workspace }}\CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
+          cmake ${{ github.workspace }}\CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build -A Win32
+          cmake --build build
+          $env:TestEnvVar = "TestEnvVarValue"
+          #Get-ChildItem -Recurse build
+          build\Debug\test_app.exe
+          
+      - name: Windows tests (x64)
+        if: ${{ matrix.os == 'windows-latest' && matrix.platform == 'x64' }}
+        shell: powershell
+        run: |
+          cmake ${{ github.workspace }}\CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build -A x64
           cmake --build build
           $env:TestEnvVar = "TestEnvVarValue"
           #Get-ChildItem -Recurse build
