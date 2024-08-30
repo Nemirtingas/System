@@ -19,6 +19,7 @@
 
 #include <System/Filesystem.h>
 #include <System/Encoding.hpp>
+#include <System/SystemInline.h>
 #include "System_internals.h"
 
 #if defined(SYSTEM_OS_WINDOWS)
@@ -166,6 +167,41 @@ static void _CleanSlashes(std::string& str)
     }
 }
 
+static SYSTEM_FORCEINLINE DWORD _GetFileAttributes(std::wstring const& wpath)
+{
+    return GetFileAttributesW(wpath.c_str());
+}
+
+static SYSTEM_FORCEINLINE bool _FileAttributesExists(DWORD attributes)
+{
+    return attributes != INVALID_FILE_ATTRIBUTES;
+}
+
+static SYSTEM_FORCEINLINE bool _FileAttributesIsFile(DWORD attributes)
+{
+    return (attributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY;
+}
+
+static SYSTEM_FORCEINLINE bool _FileAttributesIsDir(DWORD attributes)
+{
+    return (attributes & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+static SYSTEM_FORCEINLINE bool _CreateDirectory(std::wstring const& path)
+{
+    if (CreateDirectoryW(path.c_str(), NULL) == FALSE)
+    {
+        if (GetLastError() != ERROR_ALREADY_EXISTS)
+            return false;
+
+        auto attributes = _GetFileAttributes(path);
+        if (!_FileAttributesExists(attributes) || !_FileAttributesIsDir(attributes))
+            return false;
+    }
+
+    return true;
+}
+
 std::string GetCwd()
 {
     DWORD size = GetCurrentDirectoryW(0, nullptr);
@@ -229,66 +265,52 @@ std::string CleanPath(std::string const& path)
 
 bool IsDir(std::string const& path)
 {
-    std::wstring wpath(System::Encoding::Utf8ToWChar(path));
-
-    DWORD attrs = GetFileAttributesW(wpath.c_str());
-    return attrs != INVALID_FILE_ATTRIBUTES && attrs & FILE_ATTRIBUTE_DIRECTORY;
+    auto attributes = _GetFileAttributes(System::Encoding::Utf8ToWChar(path));
+    return _FileAttributesExists(attributes) && _FileAttributesIsDir(attributes);
 }
 
 bool IsFile(std::string const& path)
 {
-    std::wstring wpath(System::Encoding::Utf8ToWChar(path));
-
-    DWORD attrs = GetFileAttributesW(wpath.c_str());
-    return attrs != INVALID_FILE_ATTRIBUTES && ((attrs & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY);
+    auto attributes = _GetFileAttributes(System::Encoding::Utf8ToWChar(path));
+    return _FileAttributesExists(attributes) && _FileAttributesIsFile(attributes);
 }
 
 bool Exists(std::string const& path)
 {
-    std::wstring wpath(System::Encoding::Utf8ToWChar(path));
-
-    DWORD attrs = GetFileAttributesW(wpath.c_str());
-    return attrs != INVALID_FILE_ATTRIBUTES;
+    return _FileAttributesExists(_GetFileAttributes(System::Encoding::Utf8ToWChar(path)));
 }
 
 bool CreateDirectory(std::string const& directory, bool recursive)
 {
-    size_t pos = 0;
-    struct _stat sb;
-
     std::wstring sub_dir;
     std::wstring wdirectory(System::Encoding::Utf8ToWChar(directory));
+    size_t pos = 3;
 
     if (wdirectory.empty())
         return false;
 
-    if (recursive)
+    if (!recursive)
+        return _CreateDirectory(wdirectory.c_str());
+
+    do
     {
-        pos = 3;
+        pos = wdirectory.find_first_of(L"\\/", pos + 1);
+        sub_dir = wdirectory.substr(0, pos);
+        auto subDirAttributes = _GetFileAttributes(sub_dir);
 
-        do
+        if (_FileAttributesExists(subDirAttributes))
         {
-            pos = wdirectory.find_first_of(L"\\/", pos + 1);
-            sub_dir = std::move(wdirectory.substr(0, pos));
-            if (_wstat(sub_dir.c_str(), &sb) == 0)
-            {
-                if (!(sb.st_mode & _S_IFDIR))
-                {// A subpath in the target is not a directory
-                    return false;
-                }
-                // Folder Exists
-            }
-            else if (CreateDirectoryW(wdirectory.substr(0, pos).c_str(), NULL) == FALSE && GetLastError() != ERROR_ALREADY_EXISTS)
-            {// Failed to create directory
+            if (!_FileAttributesIsDir(subDirAttributes))
                 return false;
-            }
         }
-        while (pos != std::string::npos);
-
-        return true;
+        else if (!_CreateDirectory(sub_dir))
+        {// Failed to create directory
+            return false;
+        }
     }
-    
-    return (CreateDirectoryW(wdirectory.c_str(), NULL) != FALSE || GetLastError() == ERROR_ALREADY_EXISTS);
+    while (pos != std::string::npos);
+
+    return true;
 }
 
 bool DeleteFile(std::string const& path)
@@ -330,7 +352,7 @@ static std::vector<std::wstring> ListFiles(std::wstring const& path, bool files_
                 {
                     std::wstring dir_name = hfind_data.cFileName;
 
-                    std::vector<std::wstring> sub_files = std::move(ListFiles(search_path + dir_name, files_only, true));
+                    std::vector<std::wstring> sub_files = ListFiles(search_path + dir_name, files_only, true);
                     std::transform(sub_files.begin(), sub_files.end(), std::back_inserter(files), [&dir_name](std::wstring& Filename)
                     {
                         return dir_name + L'\\' + Filename;
@@ -369,6 +391,42 @@ std::vector<std::string> ListFiles(std::string const& path, bool files_only, boo
 }
 
 #else
+
+static SYSTEM_FORCEINLINE uint32_t _GetFileAttributes(std::string const& path)
+{
+    struct stat sb;
+    return stat(path.c_str(), &sb) == 0 ? sb.st_mode : uint32_t(-1);
+}
+
+static SYSTEM_FORCEINLINE bool _FileAttributesExists(uint32_t attributes)
+{
+    return attributes != uint32_t(-1);
+}
+
+static SYSTEM_FORCEINLINE bool _FileAttributesIsFile(uint32_t attributes)
+{
+    return S_ISREG(attributes);
+}
+
+static SYSTEM_FORCEINLINE bool _FileAttributesIsDir(uint32_t attributes)
+{
+    return S_ISDIR(attributes);
+}
+
+static SYSTEM_FORCEINLINE bool _CreateDirectory(std::string const& path)
+{
+    if (mkdir(path.c_str(), 0755) != 0)
+    {
+        if (errno != EEXIST)
+            return false;
+
+        auto attributes = _GetFileAttributes(path);
+        if (!_FileAttributesExists(attributes) || !_FileAttributesIsDir(attributes))
+            return false;
+    }
+
+    return true;
+}
 
 static void _CleanSlashes(std::string& str)
 {
@@ -451,57 +509,49 @@ std::string CleanPath(std::string const& path)
 
 bool IsDir(std::string const& path)
 {
-    struct stat sb;
-    if (stat(path.c_str(), &sb) == 0)
-    {
-        return S_ISDIR(sb.st_mode);
-    }
-
-    return false;
+    auto attributes = _GetFileAttributes(path);
+    return _FileAttributesExists(attributes) && _FileAttributesIsDir(attributes);
 }
 
 bool IsFile(std::string const& path)
 {
-    struct stat sb;
-    if (stat(path.c_str(), &sb) == 0)
-    {
-        return S_ISREG(sb.st_mode);
-    }
-
-    return false;
+    auto attributes = _GetFileAttributes(path);
+    return _FileAttributesExists(attributes) && _FileAttributesIsFile(attributes);
 }
 
 bool Exists(std::string const& path)
 {
-    struct stat sb;
-    return stat(path.c_str(), &sb) == 0;
+    auto attributes = _GetFileAttributes(path);
+    return _FileAttributesExists(attributes);
 }
 
 bool CreateDirectory(std::string const& directory, bool recursive)
 {
-    size_t pos = 0;
-    struct stat sb;
-
     std::string sub_dir;
+    size_t pos = 0;
+
+    if (directory.empty())
+        return false;
+
+    if (!recursive)
+        return _CreateDirectory(directory.c_str());
 
     do
     {
         pos = directory.find("/", pos + 1);
-        sub_dir = std::move(directory.substr(0, pos));
-        if (stat(sub_dir.c_str(), &sb) == 0)
+        sub_dir = directory.substr(0, pos);
+        auto subDirAttributes = _GetFileAttributes(sub_dir);
+
+        if (_FileAttributesExists(subDirAttributes))
         {
-            if (!S_ISDIR(sb.st_mode))
-            {// A subpath in the target is not a directory
+            if (!_FileAttributesIsDir(subDirAttributes))
                 return false;
-            }
-            // Folder Exists
         }
-        else if (mkdir(sub_dir.c_str(), 0755) < 0 && errno != EEXIST)
-        {// Failed to create directory (no permission?)
+        else if (!_CreateDirectory(sub_dir))
+        {// Failed to create directory
             return false;
         }
-    }
-    while (pos != std::string::npos);
+    } while (pos != std::string::npos);
 
     return true;
 }
@@ -540,7 +590,7 @@ std::vector<std::string> ListFiles(std::string const& path, bool files_only, boo
             if (recursive)
             {
                 std::string dir_name = entry->d_name;
-                std::vector<std::string> sub_files = std::move(ListFiles(search_path + dir_name, true));
+                std::vector<std::string> sub_files = ListFiles(search_path + dir_name, true);
                 std::transform(sub_files.begin(), sub_files.end(), std::back_inserter(files), [&dir_name](std::string& Filename)
                 {
                     return dir_name + Separator + Filename;
