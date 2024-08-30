@@ -87,11 +87,11 @@ jobs:
           set( CMAKE_SIZEOF_VOID_P 4 )
           EOL
           
-          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
-          cmake --build build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build_clang
+          cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
-          #find build
-          build/test_app
+          #find build_clang
+          build_clang/test_app
 
       - name: Linux tests gcc (x64)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
@@ -143,11 +143,11 @@ jobs:
           set( CMAKE_CXX_FLAGS_INIT "${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
           EOL
           
-          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_64_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
-          cmake --build build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_64_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build_clang
+          cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
-          #find build
-          build/test_app
+          #find build_clang
+          build_clang/test_app
           
       - name: MacOS tests
         if: matrix.os == 'macos-latest'
