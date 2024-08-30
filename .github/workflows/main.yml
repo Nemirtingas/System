@@ -28,17 +28,58 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt install -y gcc-multilib g++-multilib # needed for 32-bit builds
+          sudo apt install -y clang gcc-multilib g++-multilib # needed for 32-bit builds
           
           # write a cmake toolchain file to force 32-bit compilation
           cat >cmake_32_build.toolchain <<EOL
+          set(CMAKE_SYSTEM_NAME Linux)
+          
           set( CMAKE_C_FLAGS_INIT "-m32" )
           set( CMAKE_CXX_FLAGS_INIT "-m32" )
           set( CMAKE_SIZEOF_VOID_P 4 )
           EOL
-
+          
+          cat >cmake_32_clang_build.toolchain <<EOL
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
+          set(CMAKE_SYSTEM_NAME Linux)
+          
+          set(CMAKE_C_COMPILER clang-15 CACHE INTERNAL "C compiler")
+          set(CMAKE_CXX_COMPILER clang++-15 CACHE INTERNAL "C++ compiler")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang_gcc.cmake
+          set(COMMON_WARN_FLAGS "-pipe -fno-common -Wall -Wextra -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -Wconversion -pedantic -pedantic-errors")
+          
+          set(C_WARN_FLAGS "-Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition")
+          set(CXX_WARN_FLAGS "-Wctor-dtor-privacy -Wdeprecated-copy-dtor -Wnarrowing -Wnoexcept-type -Weffc++ -Wregister -Wold-style-cast -Woverloaded-virtual -Wsign-promo")
+          
+          set(COVERAGE_FLAGS "--coverage -fno-inline")
+          set(PROFILE_FLAGS "-pg -fno-omit-frame-pointer")
+          set(ASAN_FLAGS "-fsanitize=address -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          
+          # Don't use leak sanitizer and undefined behavior sanitizer in ctest CI for gcc. gcc does not write a logfile on which ctest relies on.
+          set(LSAN_FLAGS "-fsanitize=leak -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          set(UBSAN_FLAGS "-fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang.cmake
+          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wdocumentation -Wcomma")
+          set(MSAN_FLAGS "-fsanitize=memory -fsanitize-memory-track-origins -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          set(SCANBUILD_FLAGS "--coverage -fno-inline")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang11.cmake
+          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wsizeof-array-div -Wtautological-overlap-compare -Wtautological-compare -Wtautological-bitwise-compare -Wbitwise-conditional-parentheses -Wmisleading-indentation -Wxor-used-as-pow")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang15.cmake
+          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Warray-parameter")
+          
+          set( CMAKE_C_FLAGS_INIT "-m32" "${COMMON_WARN_FLAGS} ${C_WARN_FLAGS}")
+          set( CMAKE_CXX_FLAGS_INIT "-m32" "${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
+          set( CMAKE_SIZEOF_VOID_P 4 )
+          EOL
+          
           cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
           cmake --build build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_32_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build_clang
+          cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
           #find build
           build/test_app
@@ -47,11 +88,53 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
         shell: bash
         run: |
+          sudo apt-get update
+          sudo apt install -y clang
+          
+          cat >cmake_64_clang_build.toolchain <<EOL
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
+          set(CMAKE_SYSTEM_NAME Linux)
+          
+          set(CMAKE_C_COMPILER clang-15 CACHE INTERNAL "C compiler")
+          set(CMAKE_CXX_COMPILER clang++-15 CACHE INTERNAL "C++ compiler")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang_gcc.cmake
+          set(COMMON_WARN_FLAGS "-pipe -fno-common -Wall -Wextra -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -Wconversion -pedantic -pedantic-errors")
+          
+          set(C_WARN_FLAGS "-Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition")
+          set(CXX_WARN_FLAGS "-Wctor-dtor-privacy -Wdeprecated-copy-dtor -Wnarrowing -Wnoexcept-type -Weffc++ -Wregister -Wold-style-cast -Woverloaded-virtual -Wsign-promo")
+          
+          set(COVERAGE_FLAGS "--coverage -fno-inline")
+          set(PROFILE_FLAGS "-pg -fno-omit-frame-pointer")
+          set(ASAN_FLAGS "-fsanitize=address -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          
+          # Don't use leak sanitizer and undefined behavior sanitizer in ctest CI for gcc. gcc does not write a logfile on which ctest relies on.
+          set(LSAN_FLAGS "-fsanitize=leak -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          set(UBSAN_FLAGS "-fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang.cmake
+          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wdocumentation -Wcomma")
+          set(MSAN_FLAGS "-fsanitize=memory -fsanitize-memory-track-origins -fno-sanitize-recover=all -fno-omit-frame-pointer")
+          set(SCANBUILD_FLAGS "--coverage -fno-inline")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang11.cmake
+          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Wsizeof-array-div -Wtautological-overlap-compare -Wtautological-compare -Wtautological-bitwise-compare -Wbitwise-conditional-parentheses -Wmisleading-indentation -Wxor-used-as-pow")
+          
+          # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang15.cmake
+          set(COMMON_WARN_FLAGS "${COMMON_WARN_FLAGS} -Warray-parameter")
+          
+          set( CMAKE_C_FLAGS_INIT "${COMMON_WARN_FLAGS} ${C_WARN_FLAGS}")
+          set( CMAKE_CXX_FLAGS_INIT "${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS}")
+          EOL
+          
           cmake ${{ github.workspace }}/CMakeLists.txt -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build
           cmake --build build
+          cmake ${{ github.workspace }}/CMakeLists.txt -DCMAKE_TOOLCHAIN_FILE="cmake_64_clang_build.toolchain" -DBUILD_SYSTEMLIB_TESTS=ON -S . -B build_clang
+          cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
           #find build
           build/test_app
+          build_clang/test_app
           
       - name: MacOS tests
         if: matrix.os == 'macos-latest'
