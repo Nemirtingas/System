@@ -542,7 +542,7 @@ TEST_CASE("Type name", "[TypeName]")
         TypeNameTestClass  test1, *pointerTest1 = &test1, **pointerTest11 = &pointerTest1, ***pointerTest111 = &pointerTest11;
         TypeNameTestStruct test2, *pointerTest2 = &test2, **pointerTest22 = &pointerTest2, ***pointerTest222 = &pointerTest22;
 
-#if defined(SYSTEM_OS_APPLE)
+#if defined(SYSTEM_COMPILER_CLANG)
         CHECK(System::TypeName::TypeName<TypeNameTestClass>().to_string() == "TypeNameTestClass");
         CHECK(System::TypeName::TypeName<TypeNameTestClass*>().to_string() == "TypeNameTestClass *");
         CHECK(System::TypeName::TypeName<TypeNameTestClass**>().to_string() == "TypeNameTestClass **");
@@ -561,7 +561,7 @@ TEST_CASE("Type name", "[TypeName]")
         CHECK(System::TypeName::BaseTypeName(pointerTest11).to_string() == "TypeNameTestClass");
         CHECK(System::TypeName::BaseTypeName(pointerTest111).to_string() == "TypeNameTestClass");
 
-#if defined(SYSTEM_OS_APPLE)
+#if defined(SYSTEM_COMPILER_CLANG)
         CHECK(System::TypeName::TypeName<TypeNameTestStruct>().to_string() == "TypeNameTestStruct");
         CHECK(System::TypeName::TypeName<TypeNameTestStruct*>().to_string() == "TypeNameTestStruct *");
         CHECK(System::TypeName::TypeName<TypeNameTestStruct**>().to_string() == "TypeNameTestStruct **");
