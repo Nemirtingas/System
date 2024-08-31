@@ -62,13 +62,13 @@ template<typename Function> struct FunctionTraits;
 
 #define FUNCTION_TRAIT_DECLARE(R, ...) \
 template<SYSTEM_MACRO_CALL_OVERLOAD(FUNCTION_TRAIT_TYPENAME_DECLARE_, R, ##__VA_ARGS__)>\
-struct FunctionTraits<R(##__VA_ARGS__)>\
+struct FunctionTraits<R(__VA_ARGS__)>\
 {\
 	SYSTEM_MACRO_CALL_OVERLOAD(FUNCTION_TRAIT_MEMBER_DECLARE_, R, __VA_ARGS__);\
 	FUNCTION_TRAIT_FUNCTION_TYPE_DECLARE(R, ##__VA_ARGS__);\
 };\
 template<SYSTEM_MACRO_CALL_OVERLOAD(FUNCTION_TRAIT_TYPENAME_DECLARE_, R, ##__VA_ARGS__)>\
-struct FunctionTraits<R(*)(##__VA_ARGS__)>\
+struct FunctionTraits<R(*)(__VA_ARGS__)>\
 {\
 	SYSTEM_MACRO_CALL_OVERLOAD(FUNCTION_TRAIT_MEMBER_DECLARE_, R, __VA_ARGS__);\
 	FUNCTION_TRAIT_FUNCTION_TYPE_DECLARE(R, ##__VA_ARGS__);\

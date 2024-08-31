@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <string.h>
 
 #if defined(SYSTEM_OS_WINDOWS)
 #include "WinRegister.h"
@@ -543,7 +544,7 @@ public:
         if (load_assembly_function == nullptr)
             return nullptr;
 
-        component_entry_point_fn entryPoint = nullptr;
+        void* entryPoint = nullptr;
 
         load_assembly_function(
             UTF8_TO_HOSTFXR(it->second.AssemblyPath).c_str(),
@@ -551,7 +552,7 @@ public:
             UTF8_TO_HOSTFXR(static_public_function_name).c_str(),
             full_qualifed_delegate_type.empty() ? nullptr : UTF8_TO_HOSTFXR(full_qualifed_delegate_type).c_str(),
             nullptr,
-            (void**)&entryPoint);
+            &entryPoint);
 
         return entryPoint;
     }
@@ -579,7 +580,7 @@ DefaultDelegateType DotNetCoreHost::LoadAssemblyAndEntryPoint(std::string const&
 
 DefaultDelegateType DotNetCoreHost::GetFunctionDelegate(std::string const& full_qualified_class_name, std::string const& static_public_function_name)
 {
-    return (DefaultDelegateType)_Impl->GetFunctionDelegate(full_qualified_class_name, static_public_function_name, std::string());
+    return reinterpret_cast<DefaultDelegateType>(_Impl->GetFunctionDelegate(full_qualified_class_name, static_public_function_name, std::string()));
 }
 
 void* DotNetCoreHost::GetFunctionDelegate(std::string const& full_qualified_class_name, std::string const& static_public_function_name, std::string const& full_qualifed_delegate_type)
