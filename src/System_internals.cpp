@@ -20,12 +20,33 @@
 #include "System_internals.h"
 
 #if defined(SYSTEM_OS_WINDOWS)
+#include <System/Encoding.hpp>
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #define NOMINMAX
 #include <Windows.h>
 
 namespace System {
+
+SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) GetWindowsSystemDirectory()
+{
+    std::wstring buffer(5, L'\0');
+    UINT buffer_size;
+    for(;;)
+    {
+        buffer_size = buffer.size();
+        buffer_size = GetSystemDirectoryW(&buffer[0], buffer_size);
+        if (buffer_size <= buffer.size())
+        {
+            buffer.resize(buffer_size);
+            break;
+        }
+
+        buffer.resize(buffer_size * 2);
+    }
+
+    return System::Encoding::WCharToUtf8(buffer);
+}
 
 }
 

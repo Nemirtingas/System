@@ -24,6 +24,7 @@
 #include <string>
 
 namespace System {
+SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) GetWindowsSystemDirectory();
 }
 
 #elif defined(SYSTEM_OS_LINUX)

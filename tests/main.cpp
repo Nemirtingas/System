@@ -11,6 +11,7 @@
 #include <System/SystemCompiler.h>
 #include <System/SystemCPUExtensions.h>
 #include <System/LoopBreak.hpp>
+#include <System/DotNet.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -28,6 +29,42 @@
 #ifdef CreateDirectory
 #undef CreateDirectory
 #endif
+
+/*
+"get_hostfxr_path" // buffer, 1024, nullptr
+
+"hostfxr_initialize_for_runtime_config" // 
+typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_initialize_for_runtime_config_fn)(
+    const char_t* runtime_config_path,
+    const struct hostfxr_initialize_parameters* parameters,
+    out hostfxr_handle* host_context_handle);
+
+"hostfxr_get_runtime_delegate" // 
+typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_get_runtime_delegate_fn)(
+    const hostfxr_handle host_context_handle,
+    enum hostfxr_delegate_type type,
+    out void** delegate);
+
+"hostfxr_close" //
+typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_close_fn)(const hostfxr_handle host_context_handle);
+
+hostfxr_handle ctx = nullptr;
+
+u32 result = hostfxr_initialize_for_runtime_config(path.c_str(), nullptr, &ctx);
+ON_SCOPE_EXIT{
+    hostfxr_close(ctx);
+};
+
+if (result > 2 || ctx == nullptr) {
+    throw std::runtime_error(hex::format("Failed to initialize command line {:X}", result));
+}
+
+result = hostfxr_get_runtime_delegate(
+    ctx,
+    hostfxr_delegate_type::hdt_load_assembly_and_get_function_pointer,
+    (void**)&loadAssemblyFunction
+);
+*/
 
 int main(int argc, char *argv[])
 {
@@ -387,6 +424,41 @@ TEST_CASE("Environment variable manipulation", "[environment_variable]")
     CHECK(System::UnsetEnvVar("TestEnvVar") == true);
     CHECK(System::GetEnvVar("TestEnvVar") == std::string());
 }
+
+#ifdef SYSTEM_DOTNET_TEST_ASSEMBLY
+TEST_CASE("Load .Net assembly", "[load_dotnet]")
+{
+    struct TestClass
+    {
+        int X;
+    };
+
+    System::DotNet::DotNetCoreHost host;
+    host.LoadDotNetCoreHost();
+    auto entry_point = host.LoadAssemblyAndEntryPoint(
+        "TestDotNetLoader.EntryPoint, TestDotNetLoader",
+        "Main",
+        SYSTEM_DOTNET_TEST_ASSEMBLY);
+
+    auto x = entry_point(nullptr, 0);
+
+    auto createTestClassFunction = host.GetFunctionDelegate<TestClass *(int32_t)>(
+        "TestDotNetLoader.Class1, TestDotNetLoader",
+        "CreateTestClass",
+        "TestDotNetLoader.Class1+CreateTestClassDelegate, TestDotNetLoader");
+
+    auto y = createTestClassFunction(50);
+    CHECK(y->X == 50);
+    y->X = 100;
+
+    auto freeTestClassFunction = host.GetFunctionDelegate<void(TestClass*, int)>(
+        "TestDotNetLoader.Class1, TestDotNetLoader",
+        "FreeTestClass",
+        "TestDotNetLoader.Class1+FreeTestClassDelegate, TestDotNetLoader");
+
+    freeTestClassFunction(y, 100);
+}
+#endif
 
 TEST_CASE("Set thread name", "[thread_name]")
 {

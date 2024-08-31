@@ -32,37 +32,20 @@
 #endif
 
 #if defined(SYSTEM_OS_WINDOWS)
-    #if defined(__clang__)
-        #define SYSTEM_CALL_DEFAULT 
-        #define SYSTEM_CALL_STDL    __stdcall
-        #define SYSTEM_CALL_CDECL   __cdecl
-        #define SYSTEM_CALL_FAST    __fastcall
-        #define SYSTEM_CALL_THIS    __thiscall
+    #define SYSTEM_CALL_DEFAULT 
+    #define SYSTEM_CALL_STD     __stdcall
+    #define SYSTEM_CALL_CDECL   __cdecl
+    #define SYSTEM_CALL_FAST    __fastcall
+    #define SYSTEM_CALL_THIS    __thiscall
 
-        #define SYSTEM_MODE_DEFAULT
-        #define SYSTEM_MODE_EXPORT  __declspec(dllexport)
-        #define SYSTEM_MODE_IMPORT  __declspec(dllimport)
-        #define SYSTEM_MODE_HIDDEN
+    #define SYSTEM_MODE_DEFAULT
+    #define SYSTEM_MODE_EXPORT  __declspec(dllexport)
+    #define SYSTEM_MODE_IMPORT  __declspec(dllimport)
+    #define SYSTEM_MODE_HIDDEN 
 
-        #define SYSTEM_HIDE_CLASS(keyword)                                         SYSTEM_EXTERN_NONE SYSTEM_MODE_HIDDEN keyword
-        #define SYSTEM_HIDE_API(return_type, call_convention)                      SYSTEM_EXTERN_NONE SYSTEM_MODE_HIDDEN return_type call_convention
-        #define SYSTEM_EXPORT_API(extern_type, return_type, mode, call_convention) extern_type        mode               return_type call_convention
-    #else
-        #define SYSTEM_CALL_DEFAULT 
-        #define SYSTEM_CALL_STDL    __stdcall
-        #define SYSTEM_CALL_CDECL   __cdecl
-        #define SYSTEM_CALL_FAST    __fastcall
-        #define SYSTEM_CALL_THIS    __thiscall
-
-        #define SYSTEM_MODE_DEFAULT
-        #define SYSTEM_MODE_EXPORT  __declspec(dllexport)
-        #define SYSTEM_MODE_IMPORT  __declspec(dllimport)
-        #define SYSTEM_MODE_HIDDEN 
-
-        #define SYSTEM_HIDE_CLASS(keyword)                                         SYSTEM_EXTERN_NONE SYSTEM_MODE_HIDDEN keyword
-        #define SYSTEM_HIDE_API(return_type, call_convention)                      SYSTEM_EXTERN_NONE SYSTEM_MODE_HIDDEN return_type call_convention
-        #define SYSTEM_EXPORT_API(extern_type, return_type, mode, call_convention) extern_type        mode               return_type call_convention
-    #endif
+    #define SYSTEM_HIDE_CLASS(keyword)                                         SYSTEM_EXTERN_NONE SYSTEM_MODE_HIDDEN keyword
+    #define SYSTEM_HIDE_API(return_type, call_convention)                      SYSTEM_EXTERN_NONE SYSTEM_MODE_HIDDEN return_type call_convention
+    #define SYSTEM_EXPORT_API(extern_type, return_type, mode, call_convention) extern_type        mode               return_type call_convention
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
     #define SYSTEM_CALL_DEFAULT 
     #define SYSTEM_CALL_STD     __attribute__((stdcall))

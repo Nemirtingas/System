@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_SYSTEMLIB_TESTS "Build tests." OFF)
+option(BUILD_SYSTEMLIB_TESTS_DOTNET "Build tests dotnet." OFF)
 
 set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/System.h
@@ -38,6 +39,8 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/LoopBreak.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/TypeName.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Guid.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/FunctionTraits.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/DotNet.hpp
 )
 
 add_library(system
@@ -49,6 +52,9 @@ add_library(system
   ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/System.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/System_internals.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/DotNet.cpp
+  $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/WinRegister.h>
+  $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/WinRegister.cpp>
   ${SYSTEM_HEADERS}
 )
 
@@ -65,6 +71,7 @@ target_link_libraries(system
   $<$<BOOL:${UNIX}>:dl>
   
   $<$<BOOL:${WIN32}>:shell32>
+  $<$<BOOL:${WIN32}>:advapi32>
 )
 
 target_compile_options(system
@@ -92,6 +99,11 @@ add_executable(test_app
 target_link_libraries(test_app
   PRIVATE
   Nemirtingas::System
+)
+
+target_compile_definitions(test_app
+  PRIVATE
+  $<$<BOOL:${BUILD_SYSTEMLIB_TESTS_DOTNET}>:SYSTEM_DOTNET_TEST_ASSEMBLY="${CMAKE_CURRENT_SOURCE_DIR}/tests/TestDotNetLoader/bin/Release/net6.0/publish/TestDotNetLoader.dll">
 )
 
 set_property(TARGET test_app PROPERTY
