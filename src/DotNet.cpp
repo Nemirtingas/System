@@ -282,22 +282,9 @@ static std::pair<std::string, std::string> FindDotNetAppHostPath(std::string con
     return { std::string{}, std::string{} };
 }
 
-static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_version_t wanted_version)
+static dotnet_version_t FindBestVersionMatch(std::vector<std::string> versions, dotnet_version_t wanted_version)
 {
-    std::string dotnet_host_directory;
-    std::string dotnet_host_id;
-    {
-        auto result = FindDotNetAppHostPath(dotnet_root);
-        dotnet_host_directory = std::move(result.first);
-        dotnet_host_id = std::move(result.second);
-    }
-    if (dotnet_host_directory.empty())
-        return std::string{};
-
-    auto dotnet_host_path = System::Filesystem::Join(dotnet_root, "packs", dotnet_host_directory);
-    auto versions = System::Filesystem::ListFiles(dotnet_host_path, false, false);
     dotnet_version_t found_version;
-
     for (auto const& version : versions)
     {
         auto dotnet_version = dotnet_version_t::from_string(version);
@@ -316,6 +303,24 @@ static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_
         }
     }
 
+    return found_version;
+}
+
+static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_version_t wanted_version)
+{
+    std::string dotnet_host_directory;
+    std::string dotnet_host_id;
+    {
+        auto result = FindDotNetAppHostPath(dotnet_root);
+        dotnet_host_directory = std::move(result.first);
+        dotnet_host_id = std::move(result.second);
+    }
+    if (dotnet_host_directory.empty())
+        return std::string{};
+
+    auto dotnet_host_path = System::Filesystem::Join(dotnet_root, "packs", dotnet_host_directory);
+    dotnet_version_t found_version = FindBestVersionMatch(System::Filesystem::ListFiles(dotnet_host_path, false, false), wanted_version);
+
     if (!found_version.is_empty())
     {
         auto nethost_library = System::Filesystem::Join(dotnet_host_path, found_version.to_string(), "runtimes", dotnet_host_id, "native", DOTNET_NETHOST_NAME);
@@ -329,26 +334,7 @@ static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_
 static std::string FindDotNetHostFxrPath(std::string const& dotnet_root, dotnet_version_t wanted_version)
 {
     auto dotnet_host_path = System::Filesystem::Join(dotnet_root, "host", "fxr");
-    auto versions = System::Filesystem::ListFiles(dotnet_host_path, false, false);
-    dotnet_version_t found_version;
-
-    for (auto const& version : versions)
-    {
-        auto dotnet_version = dotnet_version_t::from_string(version);
-        if (!dotnet_version.is_empty())
-        {
-            if (wanted_version.is_empty())
-            {
-                if (found_version < dotnet_version)
-                    found_version = dotnet_version;
-            }
-            else if (wanted_version == dotnet_version)
-            {
-                found_version == dotnet_version;
-                break;
-            }
-        }
-    }
+    dotnet_version_t found_version = FindBestVersionMatch(System::Filesystem::ListFiles(dotnet_host_path, false, false), wanted_version);
 
     if (!found_version.is_empty())
     {
