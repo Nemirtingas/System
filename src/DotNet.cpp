@@ -3,6 +3,7 @@
 #include <System/Library.h>
 #include <System/Filesystem.h>
 #include <System/System.h>
+#include <System/ConstExpressions.hpp>
 #include "System_internals.h"
 
 #include <memory>
@@ -16,7 +17,6 @@
 #define UTF8_TO_HOSTFXR(str) System::Encoding::Utf8ToWChar(str)
 #define HOSTFXR_STRING(str) L##str
 
-#define DOTNET_HOST_NAME "win"
 #define DOTNET_NETHOST_NAME "nethost.dll"
 #define DOTNET_HOSTFXR_NAME "hostfxr.dll"
 
@@ -28,7 +28,6 @@ typedef wchar_t char_t;
 #define UTF8_TO_HOSTFXR(str) str
 #define HOSTFXR_STRING(str) str
 
-#define DOTNET_HOST_NAME "lnx"
 #define DOTNET_NETHOST_NAME "libnethost.so"
 #define DOTNET_HOSTFXR_NAME "libhostfxr.so"
 
@@ -40,7 +39,6 @@ typedef char char_t;
 #define UTF8_TO_HOSTFXR(str) str
 #define HOSTFXR_STRING(str) str
 
-#define DOTNET_HOST_NAME "osx"
 #define DOTNET_NETHOST_NAME "libnethost.dylib"
 #define DOTNET_HOSTFXR_NAME "libhostfxr.dylib"
 
@@ -59,7 +57,9 @@ typedef char char_t;
 #define DOTNET_ARCH "arm64"
 #endif
 
-#define DOTNET_APPHOST_DIRECTORY "Microsoft.NETCore.App.Host." DOTNET_HOST_NAME "-" DOTNET_ARCH
+#define DOTNET_APPHOST_PACKS_DIRECTORY "packs"
+#define DOTNET_APPHOST_DIRECTORY_BEGIN "Microsoft.NETCore.App.Host."
+#define DOTNET_APPHOST_DIRECTORY_END   "-" DOTNET_ARCH
 
 typedef void* hostfxr_handle;
 struct hostfxr_initialize_parameters
@@ -225,9 +225,72 @@ static std::string FindDotNetRoot()
     return dotnet_root;
 }
 
+#elif defined(SYSTEM_OS_LINUX)
+
+static inline std::string FindDotNetRoot()
+{
+    std::string dotnet_root = System::GetEnvVar("DOTNET_ROOT");
+    if (dotnet_root.empty() && System::Filesystem::Exists("/usr/local/share/dotnet/"))
+        dotnet_root = "/usr/local/share/dotnet/";
+    if (dotnet_root.empty() && System::Filesystem::Exists("/usr/lib/dotnet/"))
+        dotnet_root = "/usr/lib/dotnet/";
+
+    return dotnet_root;
+}
+
+#elif defined(SYSTEM_OS_APPLE)
+
+// /usr/local/share/dotnet/host/fxr/6.0.8/
+// /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-x64/5.0.15/runtimes/osx-x64/native/
+
+static inline std::string FindDotNetRoot()
+{
+    std::string dotnet_root = System::GetEnvVar("DOTNET_ROOT");
+    if (dotnet_root.empty() && System::Filesystem::Exists("/usr/local/share/dotnet/"))
+        dotnet_root = "/usr/local/share/dotnet/";
+
+    return dotnet_root;
+}
+
+#endif
+
+static std::pair<std::string, std::string> FindDotNetAppHostPath(std::string const& dotnet_root)
+{
+    auto packs_directory = System::Filesystem::Join(dotnet_root, DOTNET_APPHOST_PACKS_DIRECTORY);
+    auto files = System::Filesystem::ListFiles(packs_directory, false, false);
+
+    constexpr size_t apphost_directory_begin_size = System::ConstExpr::StrLen(DOTNET_APPHOST_DIRECTORY_BEGIN);
+    constexpr size_t apphost_directory_end_size = System::ConstExpr::StrLen(DOTNET_APPHOST_DIRECTORY_END);
+    constexpr size_t apphost_directory_min_size = apphost_directory_begin_size + apphost_directory_end_size + 1;
+
+    for (auto const& file : files)
+    {
+        if (file.length() <= apphost_directory_min_size)
+            continue;
+
+        if (strncmp(file.c_str(), DOTNET_APPHOST_DIRECTORY_BEGIN, apphost_directory_begin_size) == 0 &&
+            strncmp(file.c_str() + file.length() - apphost_directory_end_size, DOTNET_APPHOST_DIRECTORY_END, apphost_directory_end_size) == 0)
+        {
+            return { file, file.substr(apphost_directory_begin_size, file.length() - apphost_directory_begin_size) };
+        }
+    }
+
+    return { std::string{}, std::string{} };
+}
+
 static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_version_t wanted_version)
 {
-    auto dotnet_host_path = System::Filesystem::Join(dotnet_root, "packs", DOTNET_APPHOST_DIRECTORY);
+    std::string dotnet_host_directory;
+    std::string dotnet_host_id;
+    {
+        auto result = FindDotNetAppHostPath(dotnet_root);
+        dotnet_host_directory = std::move(result.first);
+        dotnet_host_id = std::move(result.second);
+    }
+    if (dotnet_host_directory.empty())
+        return std::string{};
+
+    auto dotnet_host_path = System::Filesystem::Join(dotnet_root, "packs", dotnet_host_directory);
     auto versions = System::Filesystem::ListFiles(dotnet_host_path, false, false);
     dotnet_version_t found_version;
 
@@ -251,7 +314,7 @@ static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_
 
     if (!found_version.is_empty())
     {
-        auto nethost_library = System::Filesystem::Join(dotnet_host_path, found_version.to_string(), "runtimes", DOTNET_HOST_NAME "-" DOTNET_ARCH, "native", DOTNET_NETHOST_NAME);
+        auto nethost_library = System::Filesystem::Join(dotnet_host_path, found_version.to_string(), "runtimes", dotnet_host_id, "native", DOTNET_NETHOST_NAME);
         if (System::Filesystem::Exists(nethost_library))
             return nethost_library;
     }
@@ -334,47 +397,6 @@ static std::string ResolveDotNetHostFxrPath(std::string dotnet_root, std::string
 
     return host_fxr_library_path;
 }
-
-#elif defined(SYSTEM_OS_LINUX)
-
-// 
-
-static inline std::string FindDotNetRoot()
-{
-    std::string dotnet_root = System::GetEnvVar("DOTNET_ROOT");
-    if (dotnet_root.empty() && System::Filesystem::Exists("/usr/local/share/dotnet/"))
-        dotnet_root = "/usr/local/share/dotnet/";
-    if (dotnet_root.empty() && System::Filesystem::Exists("/usr/lib/dotnet/"))
-        dotnet_root = "/usr/lib/dotnet/";
-
-    return dotnet_root;
-}
-
-static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_version_t wanted_version)
-{
-    return std::string();
-}
-
-#elif defined(SYSTEM_OS_APPLE)
-
-// /usr/local/share/dotnet/host/fxr/6.0.8/
-// /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-x64/5.0.15/runtimes/osx-x64/native/
-
-static inline std::string FindDotNetRoot()
-{
-    std::string dotnet_root = System::GetEnvVar("DOTNET_ROOT");
-    if (dotnet_root.empty() && System::Filesystem::Exists("/usr/local/share/dotnet/"))
-        dotnet_root = "/usr/local/share/dotnet/";
-
-    return dotnet_root;
-}
-
-static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_version_t wanted_version)
-{
-    return std::string();
-}
-
-#endif
 
 namespace System {
 namespace DotNet {
