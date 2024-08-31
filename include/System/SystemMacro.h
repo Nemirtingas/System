@@ -19,7 +19,7 @@
 
 #pragma once
 
-#define SYSTE_MACRO_GLUE(x, y) x y
+#define SYSTEM_MACRO_GLUE(x, y) x y
 
 #define SYSTEM_MACRO_RETURN_ARG_COUNT(_1_, _2_, _3_, _4_, _5_, _6_, _7_, _8_, _9_, _10_, _11_, _12_, _13_, _14_, _15_, _16_, _17_, _18_, _19_, _20_, _21_, _22_, _23_, _24_, _25_, _26_, _27_, _28_, _29_, _30_, count, ...) count
 #define SYSTEM_MACRO_EXPAND_ARGS(vs) SYSTEM_MACRO_RETURN_ARG_COUNT vs
@@ -29,4 +29,4 @@
 #define SYSTEM_MACRO_OVERLOAD_MACRO_(name, count) SYSTEM_MACRO_OVERLOAD_MACRO__(name, count)
 #define SYSTEM_MACRO_OVERLOAD_MACRO(name, count) SYSTEM_MACRO_OVERLOAD_MACRO_(name, count)
 
-#define SYSTEM_MACRO_CALL_OVERLOAD(name, ...) SYSTE_MACRO_GLUE(SYSTEM_MACRO_OVERLOAD_MACRO(name, SYSTEM_MACRO_COUNT_ARGS_(__VA_ARGS__)), (__VA_ARGS__))
+#define SYSTEM_MACRO_CALL_OVERLOAD(name, ...) SYSTEM_MACRO_GLUE(SYSTEM_MACRO_OVERLOAD_MACRO(name, SYSTEM_MACRO_COUNT_ARGS_(__VA_ARGS__)), (__VA_ARGS__))
