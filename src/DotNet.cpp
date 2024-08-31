@@ -34,7 +34,7 @@ typedef wchar_t char_t;
 #define HOSTFXR_CALLTYPE
 typedef char char_t;
 
-#elif defined(SYSTEM_OS_MACOS)
+#elif defined(SYSTEM_OS_APPLE)
 
 #define UTF8_TO_HOSTFXR(str) str
 #define HOSTFXR_STRING(str) str
@@ -44,6 +44,10 @@ typedef char char_t;
 
 #define HOSTFXR_CALLTYPE
 typedef char char_t;
+
+#else
+
+#error "Unknown OS"
 
 #endif
 
@@ -306,7 +310,7 @@ static std::string FindDotNetNetHostPath(std::string const& dotnet_root, dotnet_
             }
             else if (wanted_version == dotnet_version)
             {
-                found_version == dotnet_version;
+                found_version = dotnet_version;
                 break;
             }
         }

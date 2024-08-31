@@ -84,7 +84,7 @@ public:
 	template<typename T>
 	inline typename FunctionTraits<T>::F GetFunctionDelegate(std::string const& full_qualified_class_name, std::string const& static_public_function_name, std::string const& full_qualifed_delegate_type)
 	{
-		return reinterpret_cast<FunctionTraits<T>::F>(GetFunctionDelegate(full_qualified_class_name, static_public_function_name, full_qualifed_delegate_type));
+		return reinterpret_cast<typename FunctionTraits<T>::F>(GetFunctionDelegate(full_qualified_class_name, static_public_function_name, full_qualifed_delegate_type));
 	}
 };
 
