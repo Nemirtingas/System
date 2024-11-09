@@ -72,8 +72,7 @@ int main(int argc, char *argv[])
 }
 
 auto globalNamespaceLambda = []() {
-    constexpr auto functionName = SYSTEM_FUNCTION_NAME;
-    std::cout << functionName << "|" << __FUNCTION__ << std::endl;
+    std::cout << SYSTEM_FUNCTION_NAME << std::endl;
 };
 
 struct FunctionNameStructTest
@@ -81,6 +80,7 @@ struct FunctionNameStructTest
     int Name1(int, int)
     {
         CHECK(SYSTEM_FUNCTION_NAME == std::string{ "FunctionNameStructTest::Name1" });
+        std::cout << SYSTEM_FUNCTION_NAME << std::endl;
         return 0;
     }
 
@@ -88,6 +88,7 @@ struct FunctionNameStructTest
     V Name2(T, U)
     {
         CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Name2" });
+        std::cout << SYSTEM_FUNCTION_NAME << std::endl;
         return {};
     }
 
@@ -95,12 +96,14 @@ struct FunctionNameStructTest
     {
         [this]() {
             CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
+            std::cout << SYSTEM_FUNCTION_NAME << std::endl;
         }();
 
         []() {
             []() {
                 CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
-            };
+                std::cout << SYSTEM_FUNCTION_NAME << std::endl;
+            }();
         }();
     }
 };
