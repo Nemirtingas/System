@@ -19,14 +19,30 @@
 
 #pragma once
 
+#include <System/SystemDetector.h>
+#include <System/SystemCompiler.h>
+
 #define SYSTEM_LOOP_NAME_CAT(x,y) x##y
-//#define SYSTEM_LOOP_NAME_CAT (x,y) SYSTEM_LOOP_NAME_CAT_(x,y)
+
+#if defined(SYSTEM_OS_WINDOWS) && !defined(SYSTEM_COMPILER_CLANG)
+#define SYSTEM_LOOP_NAME_DISABLE_WARNING(warningCode) \
+    __pragma(warning(push))          \
+    __pragma(warning(disable : warningCode))
+
+#define SYSTEM_LOOP_NAME_RESTORE_WARNINGS() \
+    __pragma(warning(pop))
+#else
+#define SYSTEM_LOOP_NAME_DISABLE_WARNING(warningCode)
+#define SYSTEM_LOOP_NAME_RESTORE_WARNINGS()
+#endif
 
 #define SYSTEM_LOOP_NAME(name) \
 	if (constexpr bool _namedloopInvalidBreakOrContinue = false) \
 	{ \
+		SYSTEM_LOOP_NAME_DISABLE_WARNING(4102) \
 		SYSTEM_LOOP_NAME_CAT(_namedloop_break_, name): break; \
 		SYSTEM_LOOP_NAME_CAT(_namedloop_continue_, name): continue; \
+		SYSTEM_LOOP_NAME_RESTORE_WARNINGS() \
 	} \
 	else
 
