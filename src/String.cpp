@@ -62,7 +62,7 @@ void ToLower(char* str, size_t len)
     }
 }
 
-char* CloneString(System::StringView src)
+char* CloneString(std::string_view src)
 {
     size_t len = src.length() + 1;
     char* res = new char[len];
@@ -70,7 +70,7 @@ char* CloneString(System::StringView src)
     return res;
 }
 
-size_t CopyString(System::StringView src, char* dst, size_t dst_size)
+size_t CopyString(std::string_view src, char* dst, size_t dst_size)
 {
     size_t written = 0;
     if (dst != nullptr && dst_size > 0)

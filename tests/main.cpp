@@ -3,7 +3,6 @@
 #include <System/Filesystem.h>
 #include <System/SystemDetector.h>
 #include <System/String.hpp>
-#include <System/TypeName.hpp>
 #include <System/Encoding.hpp>
 #include <System/StringSwitch.hpp>
 #include <System/Guid.hpp>
@@ -69,7 +68,6 @@ result = hostfxr_get_runtime_delegate(
 
 int main(int argc, char *argv[])
 {
-    
     return Catch::Session().run(argc, argv);
 }
 
@@ -97,6 +95,12 @@ struct FunctionNameStructTest
     {
         [this]() {
             CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
+        }();
+
+        []() {
+            []() {
+                CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
+            };
         }();
     }
 };
@@ -637,62 +641,6 @@ TEST_CASE("Base64", "[base64]")
     CHECK(System::Encoding::Base64::UrlDecode("-_v7-_v7-_v7-w")   == "\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb\xfb");
 }
 
-class TypeNameTestClass
-{};
-
-struct TypeNameTestStruct
-{};
-
-template<typename T>
-struct XXXX
-{};
-
-TEST_CASE("Type name", "[TypeName]")
-{
-    {
-        TypeNameTestClass  test1, *pointerTest1 = &test1, **pointerTest11 = &pointerTest1, ***pointerTest111 = &pointerTest11;
-        TypeNameTestStruct test2, *pointerTest2 = &test2, **pointerTest22 = &pointerTest2, ***pointerTest222 = &pointerTest22;
-
-#if defined(SYSTEM_COMPILER_CLANG)
-        CHECK(System::TypeName::TypeName<TypeNameTestClass>().to_string() == "TypeNameTestClass");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass*>().to_string() == "TypeNameTestClass *");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass**>().to_string() == "TypeNameTestClass **");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass&>().to_string() == "TypeNameTestClass &");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass&&>().to_string() == "TypeNameTestClass &&");
-#else
-        CHECK(System::TypeName::TypeName<TypeNameTestClass>().to_string() == "TypeNameTestClass");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass*>().to_string() == "TypeNameTestClass*");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass**>().to_string() == "TypeNameTestClass**");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass&>().to_string() == "TypeNameTestClass&");
-        CHECK(System::TypeName::TypeName<TypeNameTestClass&&>().to_string() == "TypeNameTestClass&&");
-#endif
-
-        CHECK(System::TypeName::BaseTypeName(test1).to_string() == "TypeNameTestClass");
-        CHECK(System::TypeName::BaseTypeName(pointerTest1).to_string() == "TypeNameTestClass");
-        CHECK(System::TypeName::BaseTypeName(pointerTest11).to_string() == "TypeNameTestClass");
-        CHECK(System::TypeName::BaseTypeName(pointerTest111).to_string() == "TypeNameTestClass");
-
-#if defined(SYSTEM_COMPILER_CLANG)
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct>().to_string() == "TypeNameTestStruct");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct*>().to_string() == "TypeNameTestStruct *");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct**>().to_string() == "TypeNameTestStruct **");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct&>().to_string() == "TypeNameTestStruct &");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct&&>().to_string() == "TypeNameTestStruct &&");
-#else
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct>().to_string() == "TypeNameTestStruct");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct*>().to_string() == "TypeNameTestStruct*");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct**>().to_string() == "TypeNameTestStruct**");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct&>().to_string() == "TypeNameTestStruct&");
-        CHECK(System::TypeName::TypeName<TypeNameTestStruct&&>().to_string() == "TypeNameTestStruct&&");
-#endif
-
-        CHECK(System::TypeName::BaseTypeName(test2).to_string() == "TypeNameTestStruct");
-        CHECK(System::TypeName::BaseTypeName(pointerTest2).to_string() == "TypeNameTestStruct");
-        CHECK(System::TypeName::BaseTypeName(pointerTest22).to_string() == "TypeNameTestStruct");
-        CHECK(System::TypeName::BaseTypeName(pointerTest222).to_string() == "TypeNameTestStruct");
-    }
-}
-
 inline std::ostream& operator<<(std::ostream& os, System::TranslatedMode mode)
 {
     switch (mode)
@@ -900,9 +848,9 @@ TEST_CASE("LeftTrim", "[left_trim]")
         std::string r = System::String::CopyLeftTrim(std::string("  left trim  "));
         CHECK(r == "left trim  ");
     }
-    // copy System::StringView
+    // copy std::string_view
     {
-        std::string r = System::String::CopyLeftTrim(System::StringView("  left trim  "));
+        std::string r = System::String::CopyLeftTrim(std::string_view{ "  left trim  " });
         CHECK(r == "left trim  ");
     }
 }
@@ -932,9 +880,9 @@ TEST_CASE("RightTrim", "[right_trim]")
         std::string r = System::String::CopyRightTrim(std::string("  right trim  "));
         CHECK(r == "  right trim");
     }
-    // copy System::StringView
+    // copy std::string_view
     {
-        std::string r = System::String::CopyRightTrim(System::StringView("  right trim  "));
+        std::string r = System::String::CopyRightTrim(std::string_view("  right trim  "));
         CHECK(r == "  right trim");
     }
 }
@@ -964,9 +912,9 @@ TEST_CASE("Trim", "[trim]")
         std::string r = System::String::CopyTrim(std::string("  both end trim  "));
         CHECK(r == "both end trim");
     }
-    // copy System::StringView
+    // copy std::string_view
     {
-        std::string r = System::String::CopyTrim(System::StringView("  both end trim  "));
+        std::string r = System::String::CopyTrim(std::string_view("  both end trim  "));
         CHECK(r == "both end trim");
     }
 }
@@ -1004,9 +952,9 @@ TEST_CASE("ToLower", "[to_lower]")
         CHECK(buffer == "TO LOWER");
         CHECK(result == "to lower");
     }
-    // copy System::StringView
+    // copy std::string_view
     {
-        System::StringView buffer = "TO LOWER";
+        std::string_view buffer = "TO LOWER";
         std::string result = System::String::CopyLower(buffer);
         CHECK(strcmp(&buffer[0], "TO LOWER") == 0);
         CHECK(result == "to lower");
@@ -1046,9 +994,9 @@ TEST_CASE("ToUpper", "[to_upper]")
         CHECK(buffer == "to upper");
         CHECK(result == "TO UPPER");
     }
-    // copy System::StringView
+    // copy std::string_view
     {
-        System::StringView buffer = "to upper";
+        std::string_view buffer = "to upper";
         std::string result = System::String::CopyUpper(buffer);
         CHECK(strcmp(&buffer[0], "to upper") == 0);
         CHECK(result == "TO UPPER");
@@ -1078,9 +1026,9 @@ TEST_CASE("CloneString", "[clone_string]")
         CHECK((result != nullptr && strcmp(result, "Clone test") == 0));
         delete[] result; result = nullptr;
     }
-    // System::StringView
+    // std::string_view
     {
-        result = System::String::CloneString(System::StringView("Clone test"));
+        result = System::String::CloneString(std::string_view("Clone test"));
         CHECK((result != nullptr && strcmp(result, "Clone test") == 0));
         delete[] result; result = nullptr;
     }
@@ -1099,8 +1047,8 @@ TEST_CASE("CopyString", "[copy_string]")
         result = System::String::CopyString("Copy test", buffer, 200);
         CHECK((result == 9 && strcmp(buffer, "Copy test") == 0));
         memset(buffer, 0, 200);
-        // System::StringView
-        result = System::String::CopyString(System::StringView("Copy test sv"), buffer, 200);
+        // std::string_view
+        result = System::String::CopyString(std::string_view("Copy test sv"), buffer, 200);
         CHECK((result == 12 && strcmp(buffer, "Copy test sv") == 0));
         memset(buffer, 0, 200);
         // std::string const&
@@ -1118,8 +1066,8 @@ TEST_CASE("CopyString", "[copy_string]")
         result = System::String::CopyString("Copy test", buffer, 5);
         CHECK((result == 4 && strcmp(buffer, "Copy") == 0));
         memset(buffer, 0, 5);
-        // System::StringView
-        result = System::String::CopyString(System::StringView("Copy test sv"), buffer, 5);
+        // std::string_view
+        result = System::String::CopyString(std::string_view("Copy test sv"), buffer, 5);
         CHECK((result == 4 && strcmp(buffer, "Copy") == 0));
         memset(buffer, 0, 5);
         // std::string const&
@@ -1139,8 +1087,8 @@ TEST_CASE("CopyString", "[copy_string]")
         result = System::String::CopyString("Copy test", buffer);
         CHECK((result == 9 && strcmp(buffer, "Copy test") == 0));
         memset(buffer, 0, 200);
-        // System::StringView
-        result = System::String::CopyString(System::StringView("Copy test sv"), buffer);
+        // std::string_view
+        result = System::String::CopyString(std::string_view("Copy test sv"), buffer);
         CHECK((result == 12 && strcmp(buffer, "Copy test sv") == 0));
         memset(buffer, 0, 200);
         // std::string const&
@@ -1158,8 +1106,8 @@ TEST_CASE("CopyString", "[copy_string]")
         result = System::String::CopyString("Copy test", buffer);
         CHECK((result == 4 && strcmp(buffer, "Copy") == 0));
         memset(buffer, 0, 5);
-        // System::StringView
-        result = System::String::CopyString(System::StringView("Copy test sv"), buffer);
+        // std::string_view
+        result = System::String::CopyString(std::string_view("Copy test sv"), buffer);
         CHECK((result == 4 && strcmp(buffer, "Copy") == 0));
         memset(buffer, 0, 5);
         // std::string const&

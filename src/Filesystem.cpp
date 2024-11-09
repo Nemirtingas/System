@@ -86,12 +86,12 @@ std::string Dirname(std::string const& path)
     return r.substr(0, pos);
 }
 
-std::string Join(StringView r, StringView l)
+std::string Join(std::string_view r, std::string_view l)
 {
-    std::string result(r.to_string());
+    std::string result(r);
 
     result += Separator;
-    result += l.to_string();
+    result += l;
 
     _CleanSlashes(result);
     return result;

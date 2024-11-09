@@ -22,8 +22,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
-
-#include <System/StringView.hpp>
+#include <string_view>
 
 #ifdef CreateDirectory
 #undef CreateDirectory
@@ -49,13 +48,13 @@ namespace Filesystem {
     std::string Dirname(std::string const& path);
     bool IsAbsolute(std::string const& path);
 
-    inline std::string Join(StringView s) { return s.to_string(); }
-    std::string Join(StringView r, StringView l);
+    inline std::string Join(std::string_view s) { return std::string{ s }; }
+    std::string Join(std::string_view r, std::string_view l);
 
     template<typename ...Args>
-    std::string Join(StringView path, Args&& ...args)
+    std::string Join(std::string_view path, Args&& ...args)
     {
-        return Join(path, StringView(Join(args...)));
+        return Join(path, std::string_view(Join(args...)));
     }
 
     std::string GetCwd();

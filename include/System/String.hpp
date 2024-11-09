@@ -24,8 +24,8 @@
 #include <cstdint>
 #include <cstring>
 #include <iterator>
+#include <string_view>
 
-#include "StringView.hpp"
 #include "StringSwitch.hpp"
 
 namespace System {
@@ -43,9 +43,9 @@ namespace details {
 
     void ToLower(char* str, size_t len);
 
-    char* CloneString(System::StringView src);
+    char* CloneString(std::string_view src);
 
-    size_t CopyString(System::StringView src, char *dst, size_t dst_size);
+    size_t CopyString(std::string_view src, char *dst, size_t dst_size);
 }
 
 
@@ -75,9 +75,9 @@ inline std::string CopyLeftTrim(const char* str)
     return r;
 }
 
-inline std::string CopyLeftTrim(System::StringView str)
+inline std::string CopyLeftTrim(std::string_view str)
 {
-    std::string r(str.to_string());
+    std::string r(str);
     LeftTrim(r);
     return r;
 }
@@ -99,9 +99,9 @@ inline std::string CopyRightTrim(const char* str)
     return r;
 }
 
-inline std::string CopyRightTrim(System::StringView str)
+inline std::string CopyRightTrim(std::string_view str)
 {
-    std::string r(str.to_string());
+    std::string r(str);
     RightTrim(r);
     return r;
 }
@@ -123,9 +123,9 @@ inline std::string CopyTrim(const char* str)
     return r;
 }
 
-inline std::string CopyTrim(System::StringView str)
+inline std::string CopyTrim(std::string_view str)
 {
-    std::string r(str.to_string());
+    std::string r(str);
     Trim(r);
     return r;
 }
@@ -164,9 +164,9 @@ inline std::string CopyLower(const char* str)
     return r;
 }
 
-inline std::string CopyLower(System::StringView str)
+inline std::string CopyLower(std::string_view str)
 {
-    std::string r = str.to_string();
+    std::string r(str);
     details::ToLower(&r[0], r.length());
     return r;
 }
@@ -198,9 +198,9 @@ inline std::string CopyUpper(const char* str)
     return r;
 }
 
-inline std::string CopyUpper(System::StringView str)
+inline std::string CopyUpper(std::string_view str)
 {
-    std::string r = str.to_string();
+    std::string r(str);
     details::ToUpper(&r[0], r.length());
     return r;
 }
@@ -232,17 +232,17 @@ inline std::string Join(T const& container, const std::string& sep)
 inline char* CloneString(const char* str)
 {
     if (str == nullptr)
-        return details::CloneString(System::StringView(""));
+        return details::CloneString(std::string_view(""));
 
-    return details::CloneString(System::StringView(str, strlen(str)));
+    return details::CloneString(std::string_view(str, strlen(str)));
 }
 
 inline char* CloneString(std::string const& str)
 {
-    return details::CloneString(System::StringView(str));
+    return details::CloneString(std::string_view(str));
 }
 
-inline char* CloneString(System::StringView str)
+inline char* CloneString(std::string_view str)
 {
     return details::CloneString(str);
 }
@@ -251,32 +251,32 @@ inline char* CloneString(System::StringView str)
 inline size_t CopyString(const char* src, char* dst, size_t dst_size)
 {
     if (src == nullptr)
-        return details::CopyString(System::StringView(""), dst, dst_size);
+        return details::CopyString(std::string_view(""), dst, dst_size);
 
-    return details::CopyString(System::StringView(src, strlen(src)), dst, dst_size);
+    return details::CopyString(std::string_view(src, strlen(src)), dst, dst_size);
 }
 
-inline size_t CopyString(System::StringView src, char* dst, size_t dst_size)
+inline size_t CopyString(std::string_view src, char* dst, size_t dst_size)
 {
     return details::CopyString(src, dst, dst_size);
 }
 
 inline size_t CopyString(std::string const& src, char* dst, size_t dst_size) 
 {
-    return details::CopyString(System::StringView(src), dst, dst_size);
+    return details::CopyString(std::string_view(src), dst, dst_size);
 }
 
 template<size_t N>
 inline size_t CopyString(const char* src, char(&dst)[N])
 {
     if (src == nullptr)
-        return details::CopyString(System::StringView(""), dst, N);
+        return details::CopyString(std::string_view(""), dst, N);
 
-    return details::CopyString(System::StringView(src, strlen(src)), dst, N);
+    return details::CopyString(std::string_view(src, strlen(src)), dst, N);
 }
 
 template<size_t N>
-inline size_t CopyString(System::StringView src, char(&dst)[N])
+inline size_t CopyString(std::string_view src, char(&dst)[N])
 {
     return details::CopyString(src, dst, N);
 }
@@ -284,7 +284,7 @@ inline size_t CopyString(System::StringView src, char(&dst)[N])
 template<size_t N>
 inline size_t CopyString(std::string const& src, char(&dst)[N])
 {
-    return details::CopyString(System::StringView(src), dst, N);
+    return details::CopyString(std::string_view(src), dst, N);
 }
 
 inline std::vector<std::string> SplitString(std::string const& str, char delimiter)
