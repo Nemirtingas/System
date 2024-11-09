@@ -10,7 +10,7 @@ endif()
 set(CMAKE_C_STANDARD_LIBRARIES "" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD_LIBRARIES "" CACHE STRING "" FORCE)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -30,6 +30,7 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemInline.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/String.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ThreadPool.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/FunctionName.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ClassEnumUtils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ConstExpressions.hpp

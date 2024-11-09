@@ -11,6 +11,7 @@
 #include <System/SystemCompiler.h>
 #include <System/SystemCPUExtensions.h>
 #include <System/LoopBreak.hpp>
+#include <System/FunctionName.hpp>
 #include <System/DotNet.hpp>
 
 #include <iostream>
@@ -68,7 +69,45 @@ result = hostfxr_get_runtime_delegate(
 
 int main(int argc, char *argv[])
 {
+    
     return Catch::Session().run(argc, argv);
+}
+
+auto globalNamespaceLambda = []() {
+    constexpr auto functionName = SYSTEM_FUNCTION_NAME;
+    std::cout << functionName << "|" << __FUNCTION__ << std::endl;
+};
+
+struct FunctionNameStructTest
+{
+    int Name1(int, int)
+    {
+        CHECK(SYSTEM_FUNCTION_NAME == std::string{ "FunctionNameStructTest::Name1" });
+        return 0;
+    }
+
+    template<typename T, typename U, typename V>
+    V Name2(T, U)
+    {
+        CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Name2" });
+        return {};
+    }
+
+    void Lambda1()
+    {
+        [this]() {
+            CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
+        }();
+    }
+};
+
+TEST_CASE("Function name extractor, [function_name]")
+{
+    globalNamespaceLambda();
+    FunctionNameStructTest test1;
+    test1.Name1(1, 1);
+    test1.Name2<int, float, char>(5, 3);
+    test1.Lambda1();
 }
 
 TEST_CASE("Filesystem", "[filesystem]")
