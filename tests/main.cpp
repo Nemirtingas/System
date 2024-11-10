@@ -13,7 +13,10 @@
 #include <System/FunctionName.hpp>
 #include <System/DotNet.hpp>
 
+#include <vector>
+#include <variant>
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <map>
 
@@ -72,7 +75,30 @@ int main(int argc, char *argv[])
 }
 
 auto globalNamespaceLambda = []() {
-    std::cout << SYSTEM_FUNCTION_NAME << std::endl;
+    std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
+};
+
+template<typename T>
+static inline std::weak_ptr<T> make_weak(std::shared_ptr<T> v)
+{
+    return v;
+}
+
+class ClangOperatorWithoutSpace
+{
+    struct InternalStruct_t
+    {
+
+    };
+
+public:
+    void _DoSomething(std::shared_ptr<InternalStruct_t> a1, uint64_t const& a2, std::string const& a3)
+    {
+        [this, aa1 = make_weak(a1)](const std::variant<std::vector<uint8_t>, std::string>& message) {
+            CHECK(SYSTEM_FUNCTION_NAME == std::string{ "ClangOperatorWithoutSpace::_DoSomething" });
+            std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
+        }("");
+    }
 };
 
 struct FunctionNameStructTest
@@ -80,7 +106,7 @@ struct FunctionNameStructTest
     int Name1(int, int)
     {
         CHECK(SYSTEM_FUNCTION_NAME == std::string{ "FunctionNameStructTest::Name1" });
-        std::cout << SYSTEM_FUNCTION_NAME << std::endl;
+        std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
         return 0;
     }
 
@@ -88,7 +114,7 @@ struct FunctionNameStructTest
     V Name2(T, U)
     {
         CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Name2" });
-        std::cout << SYSTEM_FUNCTION_NAME << std::endl;
+        std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
         return {};
     }
 
@@ -96,13 +122,13 @@ struct FunctionNameStructTest
     {
         [this]() {
             CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
-            std::cout << SYSTEM_FUNCTION_NAME << std::endl;
+            std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
         }();
 
         []() {
             []() {
                 CHECK(SYSTEM_FUNCTION_NAME == std::string_view{ "FunctionNameStructTest::Lambda1" });
-                std::cout << SYSTEM_FUNCTION_NAME << std::endl;
+                std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
             }();
         }();
     }
@@ -115,6 +141,10 @@ TEST_CASE("Function name extractor, [function_name]")
     test1.Name1(1, 1);
     test1.Name2<int, float, char>(5, 3);
     test1.Lambda1();
+
+    ClangOperatorWithoutSpace clangTest;
+    uint64_t someInteger;
+    clangTest._DoSomething(nullptr, someInteger, "");
 }
 
 TEST_CASE("Filesystem", "[filesystem]")
