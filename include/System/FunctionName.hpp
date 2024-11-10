@@ -97,8 +97,6 @@ constexpr inline std::size_t FindFunctionNameEnd(const char* str) {
     std::size_t nested = 0;
 
     constexpr std::string_view wellKnownStrings[] = {
-        std::string_view{ "::operator () ()" },
-        std::string_view{ "::operator() ()" },
         std::string_view{ "::operator ()()" },
         std::string_view{ "::operator()()" },
         std::string_view{ "::operator ()" },
