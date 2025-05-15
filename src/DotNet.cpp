@@ -374,7 +374,7 @@ static std::string ResolveDotNetHostFxrPath(std::string dotnet_root, std::string
             if (get_hostfxr_path(buffer, &bufferSize, nullptr) == 0)
             {
 #if defined(SYSTEM_OS_WINDOWS)
-                host_fxr_library_path = System::Encoding::WCharToUtf8(buffer);
+                host_fxr_library_path = System::Encoding::WCharToUtf8(std::wstring_view(buffer));
 #else
                 host_fxr_library_path = buffer;
 #endif

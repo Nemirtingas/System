@@ -686,10 +686,27 @@ inline std::ostream& operator<<(std::ostream& os, System::TranslatedMode mode)
     return os << "System::TranslatedMode(" << (int)mode << ')';
 }
 
+static void LoadLibraryCallback(std::string const& libraryName, void* libraryBase, System::Library::LoadLibraryReason reason, void* userParameter)
+{
+#if defined(SYSTEM_OS_WINDOWS)
+    auto filename = System::Filesystem::Filename(libraryName);
+    CHECK(filename == "shared.dll");
+#elif defined(SYSTEM_OS_LINUX)
+    auto filename = System::Filesystem::Filename(libraryName);
+    CHECK(filename == "shared.so");
+#elif defined(SYSTEM_OS_APPLE)
+    auto filename = System::Filesystem::Filename(libraryName);
+    CHECK(filename == "shared.dylib");
+#endif
+}
+
 TEST_CASE("Load library", "[loadlibrary]")
 {
     System::Library::Library shared;
     std::string lib_path = System::Filesystem::Join(System::Filesystem::Dirname(System::GetExecutablePath()), "shared");
+
+    auto callbackToken = System::Library::AddLoadLibraryCallback(&LoadLibraryCallback, nullptr);
+
     shared.OpenLibrary(lib_path, true);
     std::cout << "From executable: " << std::endl
               << "  Executable pid        : " << System::GetProcessId() << std::endl
@@ -762,6 +779,8 @@ TEST_CASE("Load library", "[loadlibrary]")
     {
         CHECK(shared.GetLibraryPath() == System::Library::GetLibraryPath(shared.GetLibraryNativeHandle()));
     }
+
+    System::Library::RemoveLoadLibraryCallback(callbackToken);
 }
 
 TEST_CASE("Show modules", "[showmodules]")

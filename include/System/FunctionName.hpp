@@ -151,4 +151,5 @@ constexpr inline std::size_t FindFunctionNameEnd(const char* str) {
         return System::FunctionName::Details::ExtractChars<Wrapper, System::FunctionName::Details::make_range_sequence_t<System::FunctionName::Details::FindFunctionNameStart(Wrapper::get()), System::FunctionName::Details::FindFunctionNameEnd(Wrapper::get())>>::type::value; \
     }()
 
+//#define SYSTEM_FUNCTION_NAME __FUNCTION__
 #define SYSTEM_FUNCTION_NAME SYSTEM_FUNCTION_NAME_IMPL(SYSTEM_DETAILS_FUNCTION_NAME)

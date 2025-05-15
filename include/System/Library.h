@@ -61,6 +61,15 @@ public:
     bool IsLoaded() const;
 };
 
+enum class LoadLibraryReason
+{
+    Loaded = 0,
+    Unloaded = 1,
+};
+
+typedef void(*LoadLibraryCallback_t)(std::string const& libraryName, void* libraryBase, System::Library::LoadLibraryReason reason, void* userParameter);
+
+
 // Triies to load the library, I suggest that you use a Library instance instead
 void* OpenLibrary(const char* library_name);
 // Will decrease the OS' ref counter on the library, use it to close a handle opened by open_library.
@@ -74,7 +83,10 @@ void* GetLibraryHandle(const char* library_name);
 std::string GetLibraryPath(void* handle);
 // Get the native extension representing a shared library.
 std::string GetLibraryExtension();
-
+// Add a callback on library load
+void* AddLoadLibraryCallback(LoadLibraryCallback_t callback, void* userParameter);
+// Remove a callback from a previous call of AddLoadLibraryCallback
+void RemoveLoadLibraryCallback(void* token);
 }
 
 }

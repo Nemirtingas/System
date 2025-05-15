@@ -30,6 +30,65 @@
 
     constexpr char library_suffix[] = ".dll";
 
+        typedef LONG NTSTATUS;
+
+    typedef struct _UNICODE_STR
+    {
+        USHORT Length;
+        USHORT MaximumLength;
+        PWSTR pBuffer;
+    } UNICODE_STR, * PUNICODE_STR;
+    
+    typedef struct _LDR_DLL_LOADED_NOTIFICATION_DATA {
+        ULONG           Flags;             // Reserved.
+        PUNICODE_STR FullDllName;       // The full path name of the DLL module.
+        PUNICODE_STR BaseDllName;       // The base file name of the DLL module.
+        PVOID           DllBase;           // A pointer to the base address for the DLL in memory.
+        ULONG           SizeOfImage;       // The size of the DLL image, in bytes.
+    } LDR_DLL_LOADED_NOTIFICATION_DATA, * PLDR_DLL_LOADED_NOTIFICATION_DATA;
+    
+    typedef struct _LDR_DLL_UNLOADED_NOTIFICATION_DATA {
+        ULONG           Flags;             // Reserved.
+        PUNICODE_STR FullDllName;       // The full path name of the DLL module.
+        PUNICODE_STR BaseDllName;       // The base file name of the DLL module.
+        PVOID           DllBase;           // A pointer to the base address for the DLL in memory.
+        ULONG           SizeOfImage;       // The size of the DLL image, in bytes.
+    } LDR_DLL_UNLOADED_NOTIFICATION_DATA, * PLDR_DLL_UNLOADED_NOTIFICATION_DATA;
+    
+    typedef union _LDR_DLL_NOTIFICATION_DATA {
+        LDR_DLL_LOADED_NOTIFICATION_DATA   Loaded;
+        LDR_DLL_UNLOADED_NOTIFICATION_DATA Unloaded;
+    } LDR_DLL_NOTIFICATION_DATA, * PLDR_DLL_NOTIFICATION_DATA;
+    
+    typedef VOID(CALLBACK* PLDR_DLL_NOTIFICATION_FUNCTION)(
+        ULONG                       NotificationReason,
+        PLDR_DLL_NOTIFICATION_DATA  NotificationData,
+        PVOID                       Context);
+    
+    typedef struct _LDR_DLL_NOTIFICATION_ENTRY {
+        LIST_ENTRY                     List;
+        PLDR_DLL_NOTIFICATION_FUNCTION Callback;
+        PVOID                          Context;
+    } LDR_DLL_NOTIFICATION_ENTRY, * PLDR_DLL_NOTIFICATION_ENTRY;
+    
+    typedef NTSTATUS(NTAPI* _LdrRegisterDllNotification) (
+        ULONG                          Flags,
+        PLDR_DLL_NOTIFICATION_FUNCTION NotificationFunction,
+        PVOID                          Context,
+        PVOID* Cookie);
+    
+    typedef NTSTATUS(NTAPI* _LdrUnregisterDllNotification)(PVOID Cookie);
+
+    #define LDR_DLL_NOTIFICATION_REASON_LOADED 1
+    #define LDR_DLL_NOTIFICATION_REASON_UNLOADED 2
+
+    struct LibraryNotificationParameter_t
+    {
+        void* Cookie;
+        System::Library::LoadLibraryCallback_t Callback;
+        void* UserParameter;
+    };
+
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
     #include <dlfcn.h>
     #include <cstring>
@@ -59,7 +118,7 @@ void* OpenLibrary(const char* library_name)
     if (library_name == nullptr)
         return nullptr;
 
-    std::wstring wide(System::Encoding::Utf8ToWChar(library_name));
+    std::wstring wide(System::Encoding::Utf8ToWChar(std::string_view(library_name)));
     return LoadLibraryW(wide.c_str());
 }
 
@@ -82,7 +141,7 @@ void* GetLibraryHandle(const char* library_name)
     if (library_name == nullptr)
         return nullptr;
 
-    std::wstring wide(System::Encoding::Utf8ToWChar(library_name));
+    std::wstring wide(System::Encoding::Utf8ToWChar(std::string_view(library_name)));
     return GetModuleHandleW(wide.c_str());
 }
 
@@ -101,6 +160,71 @@ std::string GetLibraryPath(void* handle)
     
     wpath.resize(size);
     return System::Encoding::WCharToUtf8(wpath);
+}
+
+static void CALLBACK InternalLoadLibraryCallback(ULONG NotificationReason, PLDR_DLL_NOTIFICATION_DATA  NotificationData, PVOID Context)
+{
+    auto loaderParameter = reinterpret_cast<LibraryNotificationParameter_t*>(Context);
+
+    if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_LOADED)
+    {
+        auto libraryName = System::Encoding::WCharToUtf8(std::wstring_view(NotificationData->Loaded.FullDllName->pBuffer, NotificationData->Loaded.FullDllName->Length/sizeof(WCHAR)));
+        loaderParameter->Callback(libraryName, NotificationData->Loaded.DllBase, System::Library::LoadLibraryReason::Loaded, loaderParameter->UserParameter);
+    }
+    else if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_UNLOADED)
+    {
+        auto libraryName = System::Encoding::WCharToUtf8(std::wstring_view(NotificationData->Unloaded.FullDllName->pBuffer, NotificationData->Unloaded.FullDllName->Length / sizeof(WCHAR)));
+        loaderParameter->Callback(libraryName, NotificationData->Unloaded.DllBase, System::Library::LoadLibraryReason::Unloaded, loaderParameter->UserParameter);
+    }
+}
+
+void* AddLoadLibraryCallback(LoadLibraryCallback_t callback, void* userParameter)
+{
+    static _LdrRegisterDllNotification LdrRegisterDllNotification = nullptr;
+    LibraryNotificationParameter_t* loaderParameter = nullptr;
+
+    if (LdrRegisterDllNotification == nullptr)
+    {
+        auto ntdll = GetLibraryHandle("ntdll.dll");
+        if (ntdll !=  nullptr)
+            LdrRegisterDllNotification = (decltype(LdrRegisterDllNotification))GetSymbol(ntdll, "LdrRegisterDllNotification");
+    }
+
+    if (LdrRegisterDllNotification != nullptr)
+    {
+        loaderParameter = new LibraryNotificationParameter_t();
+        if (loaderParameter != nullptr)
+        {
+            loaderParameter->UserParameter = userParameter;
+            loaderParameter->Callback = callback;
+            if (LdrRegisterDllNotification(0, &InternalLoadLibraryCallback, loaderParameter, &loaderParameter->Cookie) < 0)
+            {
+                delete loaderParameter;
+                loaderParameter = nullptr;
+            }
+        }
+    }
+
+    return (void*)loaderParameter;
+}
+
+void RemoveLoadLibraryCallback(void* token)
+{
+    static _LdrUnregisterDllNotification LdrUnregisterDllNotification = nullptr;
+
+    if (LdrUnregisterDllNotification == nullptr)
+    {
+        auto ntdll = GetLibraryHandle("ntdll.dll");
+        if (ntdll != nullptr)
+            LdrUnregisterDllNotification = (decltype(LdrUnregisterDllNotification))GetSymbol(ntdll, "LdrUnregisterDllNotification");
+    }
+
+    if (LdrUnregisterDllNotification != nullptr && token != nullptr)
+    {
+        auto loaderParameter = reinterpret_cast<LibraryNotificationParameter_t*>(token);
+        LdrUnregisterDllNotification(loaderParameter->Cookie);
+        delete loaderParameter;
+    }
 }
 
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
@@ -294,6 +418,15 @@ void* GetSymbol(void* handle, const char* symbol_name)
         return res;
     }
 #endif
+
+void* AddLoadLibraryCallback(LoadLibraryCallback_t callback, void* userParameter)
+{
+    return nullptr;
+}
+
+void RemoveLoadLibraryCallback(void* token)
+{
+}
 
 #endif
 

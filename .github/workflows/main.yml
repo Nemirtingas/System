@@ -57,8 +57,8 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
           set(CMAKE_SYSTEM_NAME Linux)
           
-          set(CMAKE_C_COMPILER clang-14 CACHE INTERNAL "C compiler")
-          set(CMAKE_CXX_COMPILER clang++-14 CACHE INTERNAL "C++ compiler")
+          set(CMAKE_C_COMPILER clang CACHE INTERNAL "C compiler")
+          set(CMAKE_CXX_COMPILER clang++ CACHE INTERNAL "C++ compiler")
           
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang_gcc.cmake
           set(COMMON_WARN_FLAGS "-pipe -fno-common -Wall -Wextra -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -Wconversion -pedantic -pedantic-errors")
@@ -114,8 +114,8 @@ jobs:
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/x86-linux-clang-15.cmake
           set(CMAKE_SYSTEM_NAME Linux)
           
-          set(CMAKE_C_COMPILER clang-14 CACHE INTERNAL "C compiler")
-          set(CMAKE_CXX_COMPILER clang++-14 CACHE INTERNAL "C++ compiler")
+          set(CMAKE_C_COMPILER clang CACHE INTERNAL "C compiler")
+          set(CMAKE_CXX_COMPILER clang++ CACHE INTERNAL "C++ compiler")
           
           # From https://github.com/gatzka/cmake-toolchain-files/blob/master/compiler/clang_gcc.cmake
           set(COMMON_WARN_FLAGS "-pipe -fno-common -Wall -Wextra -Wshadow -Winit-self -Wcast-qual -Wcast-align -Wformat=2 -Wwrite-strings -Wstrict-overflow=5 -Wdisabled-optimization -Wmissing-include-dirs -Wswitch-default -Wundef -Wconversion -pedantic -pedantic-errors")

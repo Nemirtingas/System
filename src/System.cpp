@@ -94,7 +94,7 @@ std::vector<std::string> GetProcArgs()
     res.reserve(nArgs);
     for (int i = 0; i < nArgs; ++i)
     {
-        res.emplace_back(System::Encoding::WCharToUtf8(szArglist[i]));
+        res.emplace_back(System::Encoding::WCharToUtf8(std::wstring_view(szArglist[i])));
     }
 
     LocalFree(szArglist);

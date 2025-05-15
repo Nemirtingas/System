@@ -49,6 +49,12 @@ namespace details {
             std::wstring r(std::begin(str), std::end(str));
             return r;
         }
+
+        static std::wstring convert_wstring(std::string_view str)
+        {
+            std::wstring r(std::begin(str), std::end(str));
+            return r;
+        }
     };
 
     template<typename T>
@@ -62,6 +68,13 @@ namespace details {
         }
 
         static std::wstring convert_wstring(std::string const& str)
+        {
+            std::wstring r;
+            utf8::utf8to16(std::begin(str), std::end(str), std::back_inserter(r));
+            return r;
+        }
+
+        static std::wstring convert_wstring(std::string_view str)
         {
             std::wstring r;
             utf8::utf8to16(std::begin(str), std::end(str), std::back_inserter(r));
@@ -85,10 +98,22 @@ namespace details {
             utf8::utf8to32(std::begin(str), std::end(str), std::back_inserter(r));
             return r;
         }
+
+        static std::wstring convert_wstring(std::string_view str)
+        {
+            std::wstring r;
+            utf8::utf8to32(std::begin(str), std::end(str), std::back_inserter(r));
+            return r;
+        }
     };
 }
 
 std::wstring Utf8ToWChar(std::string const& str)
+{
+    return details::string_deducer<std::wstring>::convert_wstring(str);
+}
+
+std::wstring Utf8ToWChar(std::string_view str)
 {
     return details::string_deducer<std::wstring>::convert_wstring(str);
 }
@@ -103,9 +128,24 @@ std::u32string Utf8ToUtf32(std::string const& str)
     return utf8::utf8to32(str);
 }
 
+std::u16string Utf8ToUtf16(std::string_view str)
+{
+    return utf8::utf8to16(str);
+}
+
+std::u32string Utf8ToUtf32(std::string_view str)
+{
+    return utf8::utf8to32(str);
+}
+
 std::string WCharToUtf8(std::wstring const& str)
 {
     return details::string_deducer<std::wstring>::convert_string(str);
+}
+
+std::string WCharToUtf8(std::wstring_view str)
+{
+    return details::string_deducer<std::wstring_view>::convert_string(str);
 }
 
 std::string Utf16ToUtf8(std::u16string const& str)
@@ -118,7 +158,22 @@ std::string Utf32ToUtf8(std::u32string const& str)
     return utf8::utf32to8(str);
 }
 
+std::string Utf16ToUtf8(std::u16string_view str)
+{
+    return utf8::utf16to8(str);
+}
+
+std::string Utf32ToUtf8(std::u32string_view str)
+{
+    return utf8::utf32to8(str);
+}
+
 size_t EncodedLength(std::string const& str)
+{
+    return utf8::distance(str.begin(), str.end());
+}
+
+size_t EncodedLength(std::string_view str)
 {
     return utf8::distance(str.begin(), str.end());
 }

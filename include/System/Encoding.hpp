@@ -20,6 +20,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace System {
@@ -27,18 +28,32 @@ namespace Encoding {
 
 std::wstring Utf8ToWChar(std::string const& str);
 
+std::wstring Utf8ToWChar(std::string_view str);
+
 std::u16string Utf8ToUtf16(std::string const& str);
+
+std::u16string Utf8ToUtf16(std::string_view str);
 
 std::u32string Utf8ToUtf32(std::string const& str);
 
+std::u32string Utf8ToUtf32(std::string_view str);
+
 std::string WCharToUtf8(std::wstring const& str);
+
+std::string WCharToUtf8(std::wstring_view str);
 
 std::string Utf16ToUtf8(std::u16string const& str);
 
+std::string Utf16ToUtf8(std::u16string_view str);
+
 std::string Utf32ToUtf8(std::u32string const& str);
+
+std::string Utf32ToUtf8(std::u32string_view str);
 
 // Size of UTF8 chars (not the size of the byte buffer).
 size_t EncodedLength(std::string const& str);
+
+size_t EncodedLength(std::string_view str);
 
 namespace Base64
 {
