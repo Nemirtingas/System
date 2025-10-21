@@ -11,6 +11,7 @@
 #include <System/SystemCPUExtensions.h>
 #include <System/LoopBreak.hpp>
 #include <System/FunctionName.hpp>
+#include <System/TypeName.hpp>
 #include <System/DotNet.hpp>
 
 #include <vector>
@@ -69,9 +70,66 @@ result = hostfxr_get_runtime_delegate(
 );
 */
 
+struct Test {
+    struct InnerTest {
+        struct InnerInnerTest {
+
+        };
+    };
+};
+
+template<typename T>
+struct TemplateTest
+{
+
+};
+
+struct MyType
+{
+    int a;
+    float b;
+};
+
 int main(int argc, char *argv[])
 {
-    return Catch::Session().run(argc, argv);
+    constexpr auto x1 = System::TypeName::GetTypeName<int>();
+    constexpr auto x2 = System::TypeName::GetTypeName<float>();
+    constexpr auto x3 = System::TypeName::GetTypeName<char>();
+    constexpr auto x4 = System::TypeName::GetTypeName<const char>();
+    constexpr auto x5 = System::TypeName::GetTypeName<const char*>();
+    constexpr auto x6 = System::TypeName::GetTypeName<int>();
+    constexpr auto x7 = System::TypeName::GetTypeName<double>();
+    constexpr auto x8 = System::TypeName::GetTypeName<std::string>();
+    constexpr auto x9 = System::TypeName::GetTypeName<Test>();
+    constexpr auto x10 = System::TypeName::GetTypeName<Test::InnerTest>();
+    constexpr auto x11 = System::TypeName::GetTypeName<Test::InnerTest::InnerInnerTest>();
+    constexpr auto x12 = System::TypeName::GetTypeName<TemplateTest<int>>();
+    constexpr auto x13 = System::TypeName::GetTypeName<TemplateTest<Test::InnerTest>>();
+    constexpr auto x14 = System::TypeName::GetTypeName<struct test>();
+
+    std::cout
+        << x1 << std::endl
+        << x2 << std::endl
+        << x3 << std::endl
+        << x4 << std::endl
+        << x5 << std::endl
+        << x6 << std::endl
+        << x7 << std::endl
+        << x8 << std::endl
+        << x9 << std::endl
+        << x10 << std::endl
+        << x11 << std::endl
+        << x12 << std::endl
+        << x13 << std::endl
+        << x14 << std::endl;
+
+    [&]() {
+        constexpr auto x15 = System::TypeName::GetTypeName<struct TestLambda>();
+
+        std::cout << x15 << std::endl;
+    }();
+
+    //return Catch::Session().run(argc, argv);
 }
 
 auto globalNamespaceLambda = []() {

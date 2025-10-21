@@ -21,7 +21,6 @@
 
 #include <System/SystemDetector.h>
 #include <System/SystemCompiler.h>
-#include <System/LoopBreak.hpp>
 #include <string_view>
 
 namespace System {

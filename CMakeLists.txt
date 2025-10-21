@@ -31,6 +31,7 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/String.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ThreadPool.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/FunctionName.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/TypeName.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ClassEnumUtils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ConstExpressions.hpp
