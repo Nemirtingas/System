@@ -134,6 +134,17 @@ struct FunctionNameStructTest
     }
 };
 
+TEST_CASE("Compile time string manipulation, [compile_time_string_manipulation]")
+{
+    using literal_string_wrapper_t = SYSTEM_MAKE_STRING_LITERAL("aa bb cc");
+
+    constexpr auto bytes = System::ConstExpr::HexStringToBytes_t<literal_string_wrapper_t>::value;
+    constexpr auto filteredString = System::ConstExpr::StringFilterWhitelist_t<System::ConstExpr::Whitelist<'a', ' ', 'c'>, literal_string_wrapper_t>::value;
+
+    CHECK(bytes == std::array<uint8_t, 3>{ 0xaa, 0xbb, 0xcc });
+    CHECK(filteredString == std::string_view{ "aa  cc" });
+}
+
 TEST_CASE("Function name extractor, [function_name]")
 {
     globalNamespaceLambda();
