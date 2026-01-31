@@ -12,6 +12,7 @@
 #include <System/LoopBreak.hpp>
 #include <System/FunctionName.hpp>
 #include <System/DotNet.hpp>
+#include <System/Date.h>
 
 #include <vector>
 #include <variant>
@@ -19,6 +20,10 @@
 #include <memory>
 #include <fstream>
 #include <map>
+#include <sstream>
+#include <iomanip>
+#include <regex>
+#include <charconv>
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
@@ -72,6 +77,53 @@ result = hostfxr_get_runtime_delegate(
 int main(int argc, char *argv[])
 {
     return Catch::Session().run(argc, argv);
+}
+
+TEST_CASE("ISO8601 date parse, [date_parse]")
+{
+    auto clock = System::Date::ParseIso8601("2026-01-31T12:34:56.789123Z");
+
+    auto now_us = std::chrono::time_point_cast<std::chrono::microseconds>(clock);
+    auto secs = std::chrono::time_point_cast<std::chrono::seconds>(clock);
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(now_us - secs).count();
+
+    std::time_t t = std::chrono::system_clock::to_time_t(secs);
+    std::tm tm = *std::gmtime(&t);
+
+    CHECK(tm.tm_year == 126);
+    CHECK(tm.tm_mon == 0);
+    CHECK(tm.tm_mday == 31);
+    CHECK(tm.tm_hour == 12);
+    CHECK(tm.tm_min == 34);
+    CHECK(tm.tm_sec == 56);
+    CHECK(us == 789123);
+}
+
+TEST_CASE("Clock to ISO8601 date, [date_clock]")
+{
+    auto now = std::chrono::system_clock::now();
+    auto now_us = std::chrono::time_point_cast<std::chrono::microseconds>(now);
+    auto secs = std::chrono::time_point_cast<std::chrono::seconds>(now);
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(now_us - secs).count();
+
+    std::time_t t = std::chrono::system_clock::to_time_t(secs);
+    std::tm tm = *std::gmtime(&t);
+
+    auto dateString = System::Date::ClockIso8601(now, false);
+    std::stringstream sstr;
+    sstr << 
+        std::to_string(tm.tm_year + 1900) << "-" <<
+        std::setw(2) << std::setfill('0') << std::to_string(tm.tm_mon + 1) << "-" <<
+        std::setw(2) << std::setfill('0') << std::to_string(tm.tm_mday) << "T" <<
+        std::setw(2) << std::setfill('0') << std::to_string(tm.tm_hour) << ":" <<
+        std::setw(2) << std::setfill('0') << std::to_string(tm.tm_min) << ":" <<
+        std::setw(2) << std::setfill('0') << std::to_string(tm.tm_sec);
+
+    CHECK(dateString == (sstr.str() + "Z"));
+    dateString = System::Date::ClockIso8601(now, true);
+    sstr << "." << std::setw(6) << std::setfill('0') << us << "Z";
+
+    CHECK(dateString == sstr.str());
 }
 
 auto globalNamespaceLambda = []() {

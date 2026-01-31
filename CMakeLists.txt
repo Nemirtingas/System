@@ -22,6 +22,7 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/System.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemMacro.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Filesystem.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Date.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Library.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCompiler.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCPUExtensions.h
@@ -47,6 +48,7 @@ add_library(system
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CPUExtentions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Encoding.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Filesystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Date.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Guid.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Library.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp
