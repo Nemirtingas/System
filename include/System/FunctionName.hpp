@@ -29,15 +29,12 @@ namespace FunctionName {
 namespace Details {
 #if !defined(SYSTEM_COMPILER_CLANG) && defined(SYSTEM_OS_WINDOWS)
 #define SYSTEM_DETAILS_FUNCTION_NAME __FUNCTION__
-constexpr static std::string_view FunctionSuffix{ "::()::Wrapper::get" };
 constexpr static std::string_view FunctionPrefix{ "" };
 #elif defined(SYSTEM_COMPILER_CLANG)
 #define SYSTEM_DETAILS_FUNCTION_NAME __PRETTY_FUNCTION__
-constexpr static std::string_view FunctionSuffix{ "::(anonymous class)::operator()()::Wrapper::get()" };
 constexpr static std::string_view FunctionPrefix{ "static const char *" };
 #elif defined(SYSTEM_COMPILER_GCC)
 #define SYSTEM_DETAILS_FUNCTION_NAME __PRETTY_FUNCTION__
-constexpr static std::string_view FunctionSuffix{ "::<lambda()>::Wrapper::get()" };
 constexpr static std::string_view FunctionPrefix{ "static constexpr const char* " };
 #endif
 
@@ -90,11 +87,31 @@ constexpr inline std::size_t FindFunctionNameStart(const char* str) {
     return FunctionPrefix.length();
 }
 
+constexpr inline std::string_view GetFunctionSuffix(const char* str) {
+    constexpr std::string_view wellKnownStrings[] = {
+        std::string_view { "::(anonymous class)::operator()()::Wrapper::get()" }, // Old Clang
+        std::string_view { "::(lambda)::operator()()::Wrapper::get()"          }, // Clang
+        std::string_view { "::<lambda()>::Wrapper::get()"                      }, // GCC
+        std::string_view { "::()::Wrapper::get"                                }, // MSVC
+    };
+
+    std::string_view functionName{ str };
+
+    for (auto wellKnownString : wellKnownStrings) {
+        if (functionName.find(wellKnownString) != std::string_view::npos) {
+            return wellKnownString;
+        }
+    }
+
+    return std::string_view{ "" };
+}
+
+
 constexpr inline std::size_t FindFunctionNameStartNamespace(const char* str, const char* ns) {
     auto functionName = std::string_view{ str };
     auto namespaceName = std::string_view{ ns };
     std::size_t startIndex = FindFunctionNameStart(str);
-    std::size_t endIndex = functionName.rfind(FunctionSuffix) - 1;
+    std::size_t endIndex = functionName.rfind(GetFunctionSuffix(str)) - 1;
     std::size_t nested = 0;
 
     for (std::size_t index = startIndex; index < endIndex; ++index) {
@@ -120,7 +137,7 @@ constexpr inline std::size_t FindFunctionNameStartNamespace(const char* str, con
 constexpr inline std::size_t FindFunctionNameEnd(const char* str) {
     auto functionName = std::string_view{ str };
     std::size_t startIndex = FindFunctionNameStart(str);
-    std::size_t endIndex = functionName.rfind(FunctionSuffix) - 1;
+    std::size_t endIndex = functionName.rfind(GetFunctionSuffix(str)) - 1;
     std::size_t nested = 0;
 
     constexpr std::string_view wellKnownStrings[] = {
