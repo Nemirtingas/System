@@ -43,7 +43,7 @@ jobs:
           cmake --build build
           export TestEnvVar="TestEnvVarValue"
           #find build
-          build/test_app
+          build/System_test
 
       - name: Linux tests clang (x32)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x32' }}
@@ -91,7 +91,7 @@ jobs:
           cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
           #find build_clang
-          build_clang/test_app
+          build_clang/System_test
 
       - name: Linux tests gcc (x64)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
@@ -101,7 +101,7 @@ jobs:
           cmake --build build
           export TestEnvVar="TestEnvVarValue"
           #find build
-          build/test_app
+          build/System_test
 
       - name: Linux tests clang (x64)
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.platform == 'x64' }}
@@ -147,7 +147,7 @@ jobs:
           cmake --build build_clang
           export TestEnvVar="TestEnvVarValue"
           #find build_clang
-          build_clang/test_app
+          build_clang/System_test
           
       - name: MacOS tests
         if: matrix.os == 'macos-latest'
@@ -157,7 +157,7 @@ jobs:
           cmake --build build
           export TestEnvVar="TestEnvVarValue"
           #find build
-          build/test_app
+          build/System_test
           
       - name: Windows tests (x32)
         if: ${{ matrix.os == 'windows-latest' && matrix.platform == 'x32' }}
@@ -167,7 +167,7 @@ jobs:
           cmake --build build
           $env:TestEnvVar = "TestEnvVarValue"
           #Get-ChildItem -Recurse build
-          build\Debug\test_app.exe
+          build\Debug\System_test.exe
           
       - name: Windows tests (x64)
         if: ${{ matrix.os == 'windows-latest' && matrix.platform == 'x64' }}
@@ -177,4 +177,4 @@ jobs:
           cmake --build build
           $env:TestEnvVar = "TestEnvVarValue"
           #Get-ChildItem -Recurse build
-          build\Debug\test_app.exe
+          build\Debug\System_test.exe

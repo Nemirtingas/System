@@ -742,20 +742,20 @@ static void LoadLibraryCallback(std::string const& libraryName, void* libraryBas
 {
 #if defined(SYSTEM_OS_WINDOWS)
     auto filename = System::Filesystem::Filename(libraryName);
-    CHECK(filename == "shared.dll");
+    CHECK(filename == "System_shared.dll");
 #elif defined(SYSTEM_OS_LINUX)
     auto filename = System::Filesystem::Filename(libraryName);
-    CHECK(filename == "shared.so");
+    CHECK(filename == "System_shared.so");
 #elif defined(SYSTEM_OS_APPLE)
     auto filename = System::Filesystem::Filename(libraryName);
-    CHECK(filename == "shared.dylib");
+    CHECK(filename == "System_shared.dylib");
 #endif
 }
 
 TEST_CASE("Load library", "[loadlibrary]")
 {
     System::Library::Library shared;
-    std::string lib_path = System::Filesystem::Join(System::Filesystem::Dirname(System::GetExecutablePath()), "shared");
+    std::string lib_path = System::Filesystem::Join(System::Filesystem::Dirname(System::GetExecutablePath()), "System_shared");
 
     auto callbackToken = System::Library::AddLoadLibraryCallback(&LoadLibraryCallback, nullptr);
 
@@ -784,43 +784,43 @@ TEST_CASE("Load library", "[loadlibrary]")
 #if defined(SYSTEM_OS_WINDOWS)
     {
         auto tmp = System::Filesystem::Filename(System::GetExecutablePath());
-        CHECK(tmp == "test_app.exe");
+        CHECK(tmp == "System_test.exe");
     }
     {
         auto tmp = System::Filesystem::Filename(System::GetModulePath());
-        CHECK(tmp == "test_app.exe");
+        CHECK(tmp == "System_test.exe");
     }
     {
         auto tmp = System::Filesystem::Filename(shared.GetLibraryPath());
-        CHECK(tmp == "shared.dll");
+        CHECK(tmp == "System_shared.dll");
     }
     CHECK(System::Library::GetLibraryExtension() == ".dll");
 #elif defined(SYSTEM_OS_LINUX)
     {
         auto tmp = System::Filesystem::Filename(System::GetExecutablePath());
-        CHECK(tmp == "test_app");
+        CHECK(tmp == "System_test");
     }
     {
         auto tmp = System::Filesystem::Filename(System::GetModulePath());
-        CHECK(tmp == "test_app");
+        CHECK(tmp == "System_test");
     }
     {
         auto tmp = System::Filesystem::Filename(shared.GetLibraryPath());
-        CHECK(tmp == "shared.so");
+        CHECK(tmp == "System_shared.so");
     }
     CHECK(System::Library::GetLibraryExtension() == ".so");
 #elif defined(SYSTEM_OS_APPLE)
     {
         auto tmp = System::Filesystem::Filename(System::GetExecutablePath());
-        CHECK(tmp == "test_app");
+        CHECK(tmp == "System_test");
     }
     {
         auto tmp = System::Filesystem::Filename(System::GetModulePath());
-        CHECK(tmp == "test_app");
+        CHECK(tmp == "System_test");
     }
     {
         auto tmp = System::Filesystem::Filename(shared.GetLibraryPath());
-        CHECK(tmp == "shared.dylib");
+        CHECK(tmp == "System_shared.dylib");
     }
     CHECK(System::Library::GetLibraryExtension() == ".dylib");
 #endif
