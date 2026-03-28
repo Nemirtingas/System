@@ -11,6 +11,7 @@
 #include <System/SystemCPUExtensions.h>
 #include <System/LoopBreak.hpp>
 #include <System/FunctionName.hpp>
+#include <System/SourceName.hpp>
 #include <System/DotNet.hpp>
 #include <System/Date.h>
 
@@ -120,6 +121,18 @@ TEST_CASE("Clock to ISO8601 date, [date_clock]")
     sstr << "." << std::setw(6) << std::setfill('0') << us << "Z";
 
     CHECK(dateString == sstr.str());
+}
+
+TEST_CASE("Source name extractor, [source_name]")
+{
+    std::cout << "Source path: " << SYSTEM_SOURCE_FILE_PATH << std::endl
+              << "Source file: " << SYSTEM_SOURCE_FILE_NAME << std::endl
+              << "Source dir : " << SYSTEM_SOURCE_DIR_NAME << std::endl
+              << "Source ext : " << SYSTEM_SOURCE_EXTENSION_NAME << std::endl
+              << "Source relative path: " << SYSTEM_SOURCE_RELATIVE_FILE_PATH(PROJECT_ROOT_PATH) << std::endl;
+
+    CHECK(SYSTEM_SOURCE_FILE_NAME == std::string_view("main.cpp"));
+    CHECK(SYSTEM_SOURCE_EXTENSION_NAME == std::string_view("cpp"));
 }
 
 auto globalNamespaceLambda = []() { std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl; };
