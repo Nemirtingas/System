@@ -19,44 +19,46 @@ option(SYSTEM_BUILD_TESTS "Build tests." OFF)
 option(SYSTEM_BUILD_TESTS_DOTNET "Build tests dotnet." OFF)
 
 set(SYSTEM_HEADERS
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/System.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemMacro.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Filesystem.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Date.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Library.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCompiler.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemCPUExtensions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemDetector.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemExports.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/SystemInline.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/String.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ThreadPool.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/FunctionName.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ClassEnumUtils.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ConstExpressions.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Endianness.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ScopedLock.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/StringSwitch.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/LoopBreak.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Guid.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/FunctionTraits.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/DotNet.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/System.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SystemMacro.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/Filesystem.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/Date.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/Library.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SystemCompiler.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SystemCPUExtensions.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SystemDetector.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SystemExports.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SystemInline.h
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/String.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/ThreadPool.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/FunctionName.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/SourceName.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/TemplateStaticStorage.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/Encoding.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/ClassEnumUtils.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/ConstExpressions.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/Endianness.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/ScopedLock.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/StringSwitch.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/LoopBreak.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/Guid.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/FunctionTraits.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/System/DotNet.hpp
 )
 
 add_library(system
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/CPUExtentions.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Encoding.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Filesystem.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Date.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Guid.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Library.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/System.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/System_internals.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/DotNet.cpp
-  $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/WinRegister.h>
-  $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/WinRegister.cpp>
+  ${CMAKE_CURRENT_LIST_DIR}/src/CPUExtentions.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/Encoding.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/Filesystem.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/Date.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/Guid.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/Library.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/String.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/System.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/System_internals.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/src/DotNet.cpp
+  $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/src/WinRegister.h>
+  $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/src/WinRegister.cpp>
   ${SYSTEM_HEADERS}
 )
 
@@ -85,8 +87,8 @@ target_compile_options(system
 
 target_include_directories(system
   PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/deps/utfcpp/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/deps/utfcpp/include>
   $<INSTALL_INTERFACE:include>
 )
 
@@ -106,7 +108,8 @@ target_link_libraries(test_app
 
 target_compile_definitions(test_app
   PRIVATE
-  $<$<BOOL:${SYSTEM_BUILD_TESTS_DOTNET}>:SYSTEM_DOTNET_TEST_ASSEMBLY="${CMAKE_CURRENT_SOURCE_DIR}/tests/TestDotNetLoader/bin/Release/net6.0/publish/TestDotNetLoader.dll">
+  $<$<BOOL:${SYSTEM_BUILD_TESTS_DOTNET}>:SYSTEM_DOTNET_TEST_ASSEMBLY="${CMAKE_CURRENT_LIST_DIR}/tests/TestDotNetLoader/bin/Release/net6.0/publish/TestDotNetLoader.dll">
+  PROJECT_ROOT_PATH="${CMAKE_CURRENT_LIST_DIR}/"
 )
 
 set_property(TARGET test_app PROPERTY

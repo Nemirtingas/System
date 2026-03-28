@@ -11,6 +11,7 @@
 #include <System/SystemCPUExtensions.h>
 #include <System/LoopBreak.hpp>
 #include <System/FunctionName.hpp>
+#include <System/SourceName.hpp>
 #include <System/DotNet.hpp>
 #include <System/Date.h>
 
@@ -35,7 +36,7 @@
 #define TEST_MACRO_5(a1, a2, a3, a4, a5) TEST_MACRO_4(a1, a2, a3, a4) + a5
 
 #ifdef CreateDirectory
-    #undef CreateDirectory
+#undef CreateDirectory
 #endif
 
 /*
@@ -122,9 +123,22 @@ TEST_CASE("Clock to ISO8601 date, [date_clock]")
     CHECK(dateString == sstr.str());
 }
 
+TEST_CASE("Source name extractor, [source_name]")
+{
+    std::cout << "Source path: " << SYSTEM_SOURCE_FILE_PATH << std::endl
+              << "Source file: " << SYSTEM_SOURCE_FILE_NAME << std::endl
+              << "Source dir : " << SYSTEM_SOURCE_DIR_NAME << std::endl
+              << "Source ext : " << SYSTEM_SOURCE_EXTENSION_NAME << std::endl
+              << "Source relative path: " << SYSTEM_SOURCE_RELATIVE_FILE_PATH(PROJECT_ROOT_PATH) << std::endl;
+
+    CHECK(SYSTEM_SOURCE_FILE_NAME == std::string_view("main.cpp"));
+    CHECK(SYSTEM_SOURCE_EXTENSION_NAME == std::string_view("cpp"));
+}
+
 auto globalNamespaceLambda = []() { std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl; };
 
-template <typename T> static inline std::weak_ptr<T> make_weak(std::shared_ptr<T> v)
+template <typename T>
+static inline std::weak_ptr<T> make_weak(std::shared_ptr<T> v)
 {
     return v;
 }
@@ -155,7 +169,8 @@ struct FunctionNameStructTest
         return 0;
     }
 
-    template <typename T, typename U, typename V> V Name2(T, U)
+    template <typename T, typename U, typename V>
+    V Name2(T, U)
     {
         CHECK(SYSTEM_FUNCTION_NAME == std::string_view{"FunctionNameStructTest::Name2"});
         std::cout << SYSTEM_DETAILS_FUNCTION_NAME << " | " << SYSTEM_FUNCTION_NAME << std::endl;
@@ -256,7 +271,7 @@ TEST_CASE("CpuId", "[cpuid]")
     *(int32_t *)&(cpuName[8])           = cpuId0.Registers.ecx;
 
     std::cout << "CPU ID             : " << cpuName << std::endl;
-    #define CHECK_CPU_FEATURE(CPUID, FEATURE) printf("%-19s: %s\n", #FEATURE, System::CpuFeatures::HasFeature(CPUID, System::CpuFeatures::FEATURE) ? "YES" : "NO")
+#define CHECK_CPU_FEATURE(CPUID, FEATURE) printf("%-19s: %s\n", #FEATURE, System::CpuFeatures::HasFeature(CPUID, System::CpuFeatures::FEATURE) ? "YES" : "NO")
     if (cpuId0.Registers.eax >= 1)
     {
         System::CpuFeatures::CpuId_t cpuId1 = System::CpuFeatures::CpuId(1);
@@ -429,7 +444,7 @@ TEST_CASE("CpuId", "[cpuid]")
         CHECK_CPU_FEATURE(cpuId7, LAM);
     }
 
-    #undef CHECK_CPU_FEATURE
+#undef CHECK_CPU_FEATURE
 
 #elif defined(SYSTEM_ARCH_ARM64) || defined(SYSTEM_ARCH_ARM)
 
@@ -897,9 +912,9 @@ TEST_CASE("Filename", "[filename]")
 TEST_CASE("Join", "[join]")
 {
 #if defined(SYSTEM_OS_WINDOWS)
-    #define TSEP "\\"
+#define TSEP "\\"
 #else
-    #define TSEP "/"
+#define TSEP "/"
 #endif
     CHECK(System::Filesystem::Join("a", "b") == "a" TSEP "b");
     CHECK(System::Filesystem::Join("a\\", "b") == "a" TSEP "b");
