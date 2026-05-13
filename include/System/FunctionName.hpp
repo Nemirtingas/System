@@ -24,6 +24,8 @@
 #include <System/LoopBreak.hpp>
 #include <string_view>
 
+#include <System/TemplateStaticStorage.hpp>
+
 namespace System
 {
 namespace FunctionName
@@ -40,55 +42,6 @@ constexpr static std::string_view FunctionPrefix{"static const char *"};
 #define SYSTEM_DETAILS_FUNCTION_NAME __PRETTY_FUNCTION__
 constexpr static std::string_view FunctionPrefix{"static constexpr const char* "};
 #endif
-
-template <std::size_t V, typename T>
-struct index_push;
-
-template <std::size_t V, std::size_t... I>
-struct index_push<V, std::index_sequence<I...>>
-{
-    using type = std::index_sequence<V, I...>;
-};
-
-template <std::size_t From, std::size_t To>
-struct make_range_sequence;
-
-template <std::size_t To>
-struct make_range_sequence<To, To>
-{
-    using type = std::index_sequence<To>;
-};
-
-template <std::size_t From, std::size_t To>
-using make_range_sequence_t = typename make_range_sequence<From, To>::type;
-
-template <std::size_t From, std::size_t To>
-struct make_range_sequence : index_push<From, make_range_sequence_t<From + 1, To>>
-{
-};
-
-template <char... CHARS>
-struct Chars
-{
-    static constexpr const char value[] = {CHARS..., '\0'};
-};
-template <char... CHARS>
-constexpr const char Chars<CHARS...>::value[];
-
-template <typename WrapperT, typename IDXS>
-struct ExtractCharsImpl;
-
-template <typename WrapperT, std::size_t... Indexes>
-struct ExtractCharsImpl<WrapperT, std::index_sequence<Indexes...>>
-{
-    using type = Chars<WrapperT::get()[Indexes]...>;
-};
-
-template <typename WrapperT, typename SequenceT>
-struct ExtractChars
-{
-    using type = typename ExtractCharsImpl<WrapperT, SequenceT>::type;
-};
 
 constexpr inline std::size_t FindFunctionNameStart(const char *str)
 {
@@ -218,9 +171,9 @@ constexpr inline std::size_t FindFunctionNameEnd(const char *str)
         {                                                                                          \
             constexpr static const char *get() { return STR; }                                     \
         };                                                                                         \
-        return System::FunctionName::Details::ExtractChars<                                        \
+        return System::TemplateStaticStorage::Details::ExtractChars<                               \
             Wrapper,                                                                               \
-            System::FunctionName::Details::make_range_sequence_t<                                  \
+            System::TemplateStaticStorage::Details::make_range_sequence_t<                         \
                 System::FunctionName::Details::FindFunctionNameStart(Wrapper::get()),              \
                 System::FunctionName::Details::FindFunctionNameEnd(Wrapper::get())>>::type::value; \
     }()
@@ -232,9 +185,9 @@ constexpr inline std::size_t FindFunctionNameEnd(const char *str)
         {                                                                                          \
             constexpr static const char *get() { return STR; }                                     \
         };                                                                                         \
-        return System::FunctionName::Details::ExtractChars<                                        \
+        return System::TemplateStaticStorage::Details::ExtractChars<                               \
             Wrapper,                                                                               \
-            System::FunctionName::Details::make_range_sequence_t<                                  \
+            System::TemplateStaticStorage::Details::make_range_sequence_t<                         \
                 System::FunctionName::Details::FindFunctionNameStartNamespace(Wrapper::get(), NS), \
                 System::FunctionName::Details::FindFunctionNameEnd(Wrapper::get())>>::type::value; \
     }()
