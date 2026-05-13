@@ -14,7 +14,7 @@
 #include "WinRegister.h"
 #include <Windows.h>
 
-#define UTF8_TO_HOSTFXR(str) System::Encoding::Utf8ToWChar(str)
+#define UTF8_TO_HOSTFXR(str) System::Encoding::UTF8::Utf8ToWChar(str)
 #define HOSTFXR_STRING(str) L##str
 
 #define DOTNET_NETHOST_NAME "nethost.dll"
@@ -170,7 +170,7 @@ static inline std::string TryRegistryKey(void *registry_root, const char *regist
     {
         auto v = key.ReadValue(registry_value);
         if (v.IsString())
-            return System::Encoding::WCharToUtf8(v.GetString());
+            return System::Encoding::UTF8::WCharToUtf8(v.GetString());
     }
 
     return std::string();
@@ -368,7 +368,7 @@ static std::string ResolveDotNetHostFxrPath(std::string dotnet_root, std::string
             if (get_hostfxr_path(buffer, &bufferSize, nullptr) == 0)
             {
 #if defined(SYSTEM_OS_WINDOWS)
-                host_fxr_library_path = System::Encoding::WCharToUtf8(std::wstring_view(buffer));
+                host_fxr_library_path = System::Encoding::UTF8::WCharToUtf8(std::wstring_view(buffer));
 #else
                 host_fxr_library_path = buffer;
 #endif
@@ -467,7 +467,7 @@ class DotNetCoreHostImpl
         if (it == _Assemblies.end())
             return nullptr;
 
-        get_function_pointer_fn loadAssemblyFunction;
+        get_function_pointer_fn loadAssemblyFunction = nullptr;
         auto result = _HostfxrGetRuntimeDelegate((hostfxr_handle)it->second.HostHandle.get(), hostfxr_delegate_type::hdt_get_function_pointer, (void **)&loadAssemblyFunction);
 
         if (result != 0)

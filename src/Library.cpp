@@ -117,7 +117,7 @@ void *OpenLibrary(const char *library_name)
     if (library_name == nullptr)
         return nullptr;
 
-    std::wstring wide(System::Encoding::Utf8ToWChar(std::string_view(library_name)));
+    std::wstring wide(System::Encoding::UTF8::Utf8ToWChar(std::string_view(library_name)));
     return LoadLibraryW(wide.c_str());
 }
 
@@ -140,7 +140,7 @@ void *GetLibraryHandle(const char *library_name)
     if (library_name == nullptr)
         return nullptr;
 
-    std::wstring wide(System::Encoding::Utf8ToWChar(std::string_view(library_name)));
+    std::wstring wide(System::Encoding::UTF8::Utf8ToWChar(std::string_view(library_name)));
     return GetModuleHandleW(wide.c_str());
 }
 
@@ -170,7 +170,7 @@ std::string GetLibraryPath(void *handle)
     }
 
     wpath.resize(size);
-    return System::Encoding::WCharToUtf8(wpath);
+    return System::Encoding::UTF8::WCharToUtf8(wpath);
 }
 
 static void CALLBACK InternalLoadLibraryCallback(ULONG NotificationReason, PLDR_DLL_NOTIFICATION_DATA NotificationData, PVOID Context)
@@ -180,13 +180,13 @@ static void CALLBACK InternalLoadLibraryCallback(ULONG NotificationReason, PLDR_
     if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_LOADED)
     {
         auto libraryName =
-            System::Encoding::WCharToUtf8(std::wstring_view(NotificationData->Loaded.FullDllName->pBuffer, NotificationData->Loaded.FullDllName->Length / sizeof(WCHAR)));
+            System::Encoding::UTF8::WCharToUtf8(std::wstring_view(NotificationData->Loaded.FullDllName->pBuffer, NotificationData->Loaded.FullDllName->Length / sizeof(WCHAR)));
         loaderParameter->Callback(libraryName, NotificationData->Loaded.DllBase, System::Library::LoadLibraryReason::Loaded, loaderParameter->UserParameter);
     }
     else if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_UNLOADED)
     {
         auto libraryName =
-            System::Encoding::WCharToUtf8(std::wstring_view(NotificationData->Unloaded.FullDllName->pBuffer, NotificationData->Unloaded.FullDllName->Length / sizeof(WCHAR)));
+            System::Encoding::UTF8::WCharToUtf8(std::wstring_view(NotificationData->Unloaded.FullDllName->pBuffer, NotificationData->Unloaded.FullDllName->Length / sizeof(WCHAR)));
         loaderParameter->Callback(libraryName, NotificationData->Unloaded.DllBase, System::Library::LoadLibraryReason::Unloaded, loaderParameter->UserParameter);
     }
 }
