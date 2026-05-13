@@ -31,46 +31,51 @@
 #undef DeleteFile
 #endif
 
-namespace System {
-namespace Filesystem {
+namespace System
+{
+namespace Filesystem
+{
 
-    constexpr static char WindowsSeparator = '\\';
-    constexpr static char UnixSeparator = '/';
+constexpr static char WindowsSeparator = '\\';
+constexpr static char UnixSeparator    = '/';
 
-    #if defined(WIN64) || defined(_WIN64) || defined(__MINGW64__) || defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
-        constexpr static char Separator = WindowsSeparator;
-    #else
-        constexpr static char Separator = UnixSeparator;
-    #endif
+#if defined(WIN64) || defined(_WIN64) || defined(__MINGW64__) || defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
+constexpr static char Separator = WindowsSeparator;
+#else
+constexpr static char Separator = UnixSeparator;
+#endif
 
-    std::string CleanPath(std::string const& path);
-    std::string Filename(std::string const& path);
-    std::string Dirname(std::string const& path);
-    bool IsAbsolute(std::string const& path);
+std::string CleanPath(std::string const &path);
+std::string Filename(std::string const &path);
+std::string Dirname(std::string const &path);
+bool IsAbsolute(std::string const &path);
 
-    inline std::string Join(std::string_view s) { return std::string{ s }; }
-    std::string Join(std::string_view r, std::string_view l);
-
-    template<typename ...Args>
-    std::string Join(std::string_view path, Args&& ...args)
-    {
-        return Join(path, std::string_view(Join(args...)));
-    }
-
-    std::string GetCwd();
-    std::string CanonicalPath(std::string const& path);
-
-    bool IsDir(std::string const& path);
-    bool IsFile(std::string const& path);
-    bool Exists(std::string const& path);
-    size_t FileSize(std::string const& path);
-    std::chrono::system_clock::time_point FileATime(std::string const& path);
-    std::chrono::system_clock::time_point FileMTime(std::string const& path);
-    std::chrono::system_clock::time_point FileCTime(std::string const& path);
-
-    bool CreateDirectory(std::string const& folder, bool recursive = true);
-    bool DeleteFile(std::string const& path);
-    std::vector<std::string> ListFiles(std::string const& path, bool files_only, bool recursive = false);
-
+inline std::string Join(std::string_view s)
+{
+    return std::string{s};
 }
+std::string Join(std::string_view r, std::string_view l);
+
+template <typename... Args>
+std::string Join(std::string_view path, Args &&...args)
+{
+    return Join(path, std::string_view(Join(args...)));
 }
+
+std::string GetCwd();
+std::string CanonicalPath(std::string const &path);
+
+bool IsDir(std::string const &path);
+bool IsFile(std::string const &path);
+bool Exists(std::string const &path);
+size_t FileSize(std::string const &path);
+std::chrono::system_clock::time_point FileATime(std::string const &path);
+std::chrono::system_clock::time_point FileMTime(std::string const &path);
+std::chrono::system_clock::time_point FileCTime(std::string const &path);
+
+bool CreateDirectory(std::string const &folder, bool recursive = true);
+bool DeleteFile(std::string const &path);
+std::vector<std::string> ListFiles(std::string const &path, bool files_only, bool recursive = false);
+
+} // namespace Filesystem
+} // namespace System

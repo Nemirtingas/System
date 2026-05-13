@@ -21,66 +21,66 @@
 
 #if defined(SYSTEM_ARCH_X86) || defined(SYSTEM_ARCH_X64)
 #if defined(__clang__) || defined(__GNUC__) || defined(__MINGW32__) || defined(__MINGW64__)
-namespace System {
-namespace CpuFeatures {
-    CpuId_t CpuId(int functionIndex)
-    {
-        CpuId_t cpuId;
-        __asm__ __volatile__(
-            "cpuid"
-            : "=a"(cpuId.Registers.eax), "=b"(cpuId.Registers.ebx), "=c"(cpuId.Registers.ecx), "=d"(cpuId.Registers.edx)
-            : "a"(functionIndex)
-        );
+namespace System
+{
+namespace CpuFeatures
+{
+CpuId_t CpuId(int functionIndex)
+{
+    CpuId_t cpuId;
+    __asm__ __volatile__("cpuid" : "=a"(cpuId.Registers.eax), "=b"(cpuId.Registers.ebx), "=c"(cpuId.Registers.ecx), "=d"(cpuId.Registers.edx) : "a"(functionIndex));
 
-        return cpuId;
-    }
-}// namespace CpuFeatures
-}// namespace System
+    return cpuId;
+}
+} // namespace CpuFeatures
+} // namespace System
 #else
 #include <intrin.h>
 
-namespace System {
-namespace CpuFeatures {
-    CpuId_t CpuId(int functionIndex)
-    {
-        CpuId_t cpuId;
-        __cpuidex((int*)cpuId.RegisterArray, functionIndex, 0);
+namespace System
+{
+namespace CpuFeatures
+{
+CpuId_t CpuId(int functionIndex)
+{
+    CpuId_t cpuId;
+    __cpuidex((int *)cpuId.RegisterArray, functionIndex, 0);
 
-        return cpuId;
-    }
-}// namespace CpuFeatures
-}// namespace System
+    return cpuId;
+}
+} // namespace CpuFeatures
+} // namespace System
 #endif
 #elif defined(SYSTEM_ARCH_ARM) || defined(SYSTEM_ARCH_ARM64)
 #if defined(__clang__) || defined(__GNUC__) || defined(__MINGW32__) || defined(__MINGW64__)
-//namespace System {
-//namespace CpuFeatures {
-//    CpuId_t CpuId(int functionIndex)
-//    {
-//        CpuId_t cpuId;
-//        __asm__ __volatile__(
-//            "cpuid"
-//            : "=a"(cpuId.eax), "=b"(cpuId.ebx), "=c"(cpuId.ecx), "=d"(cpuId.edx)
-//            : "a"(functionIndex)
-//        );
+// namespace System {
+// namespace CpuFeatures {
+//     CpuId_t CpuId(int functionIndex)
+//     {
+//         CpuId_t cpuId;
+//         __asm__ __volatile__(
+//             "cpuid"
+//             : "=a"(cpuId.eax), "=b"(cpuId.ebx), "=c"(cpuId.ecx), "=d"(cpuId.edx)
+//             : "a"(functionIndex)
+//         );
 //
-//        return cpuId;
-//    }
-//}// namespace CpuFeatures
-//}// namespace System
+//         return cpuId;
+//     }
+// }// namespace CpuFeatures
+// }// namespace System
 #else
-//#include <intrin.h>
+// #include <intrin.h>
 //
-//namespace System {
-//namespace CpuFeatures {
-//    CpuId_t CpuId(int functionIndex)
-//    {
-//        CpuId_t cpuId;
-//        __cpuidex((int*)cpuId.registers, functionIndex, 0);
+// namespace System {
+// namespace CpuFeatures {
+//     CpuId_t CpuId(int functionIndex)
+//     {
+//         CpuId_t cpuId;
+//         __cpuidex((int*)cpuId.registers, functionIndex, 0);
 //
-//        return cpuId;
-//    }
-//}// namespace CpuFeatures
-//}// namespace System
+//         return cpuId;
+//     }
+// }// namespace CpuFeatures
+// }// namespace System
 #endif
 #endif

@@ -24,53 +24,50 @@
 #include <string.h>
 #include <algorithm>
 
-namespace System {
-namespace String {
-namespace details {
-
-void LeftTrim(std::string& str)
+namespace System
 {
-    str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const char c)
-    {
-        return !std::isspace((unsigned char)c);
-    }));
+namespace String
+{
+namespace details
+{
+
+void LeftTrim(std::string &str)
+{
+    str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const char c) { return !std::isspace((unsigned char)c); }));
 }
 
-void RightTrim(std::string& str)
+void RightTrim(std::string &str)
 {
-    str.erase(std::find_if(str.rbegin(), str.rend(), [](const char c)
-    {
-        return !std::isspace((unsigned char)c);
-    }).base(), str.end());
+    str.erase(std::find_if(str.rbegin(), str.rend(), [](const char c) { return !std::isspace((unsigned char)c); }).base(), str.end());
 }
 
-void ToUpper(char* str, size_t len)
-{
-    while(len--)
-    {
-        unsigned char c = (unsigned char)*str;
-        *str++ = std::toupper(c);
-    }
-}
-
-void ToLower(char* str, size_t len)
+void ToUpper(char *str, size_t len)
 {
     while (len--)
     {
         unsigned char c = (unsigned char)*str;
-        *str++ = std::tolower(c);
+        *str++          = std::toupper(c);
     }
 }
 
-char* CloneString(std::string_view src)
+void ToLower(char *str, size_t len)
+{
+    while (len--)
+    {
+        unsigned char c = (unsigned char)*str;
+        *str++          = std::tolower(c);
+    }
+}
+
+char *CloneString(std::string_view src)
 {
     size_t len = src.length() + 1;
-    char* res = new char[len];
+    char *res  = new char[len];
     memcpy(res, src.data(), len);
     return res;
 }
 
-size_t CopyString(std::string_view src, char* dst, size_t dst_size)
+size_t CopyString(std::string_view src, char *dst, size_t dst_size)
 {
     size_t written = 0;
     if (dst != nullptr && dst_size > 0)
@@ -82,7 +79,7 @@ size_t CopyString(std::string_view src, char* dst, size_t dst_size)
     return written;
 }
 
-}// namespace details
+} // namespace details
 
-}// namespace String
-}// namespace System
+} // namespace String
+} // namespace System

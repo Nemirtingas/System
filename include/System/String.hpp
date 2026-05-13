@@ -28,44 +28,46 @@
 
 #include "StringSwitch.hpp"
 
-namespace System {
-namespace String {
+namespace System
+{
+namespace String
+{
 
 ///////////////////////////////////////////////////////////
 // Implementations
 
-namespace details {
-    void LeftTrim(std::string& str);
+namespace details
+{
+void LeftTrim(std::string &str);
 
-    void RightTrim(std::string& str);
+void RightTrim(std::string &str);
 
-    void ToUpper(char* str, size_t len);
+void ToUpper(char *str, size_t len);
 
-    void ToLower(char* str, size_t len);
+void ToLower(char *str, size_t len);
 
-    char* CloneString(std::string_view src);
+char *CloneString(std::string_view src);
 
-    size_t CopyString(std::string_view src, char *dst, size_t dst_size);
-}
+size_t CopyString(std::string_view src, char *dst, size_t dst_size);
+} // namespace details
 
-
-inline void LeftTrim(std::string& str)
+inline void LeftTrim(std::string &str)
 {
     details::LeftTrim(str);
 }
 
-inline void RightTrim(std::string& str)
+inline void RightTrim(std::string &str)
 {
     details::RightTrim(str);
 }
 
-inline void Trim(std::string& str)
+inline void Trim(std::string &str)
 {
     LeftTrim(str);
     RightTrim(str);
 }
 
-inline std::string CopyLeftTrim(const char* str)
+inline std::string CopyLeftTrim(const char *str)
 {
     if (str == nullptr)
         return std::string();
@@ -82,14 +84,14 @@ inline std::string CopyLeftTrim(std::string_view str)
     return r;
 }
 
-inline std::string CopyLeftTrim(std::string const& str)
+inline std::string CopyLeftTrim(std::string const &str)
 {
     std::string r(str);
     LeftTrim(r);
     return r;
 }
 
-inline std::string CopyRightTrim(const char* str)
+inline std::string CopyRightTrim(const char *str)
 {
     if (str == nullptr)
         return std::string();
@@ -106,14 +108,14 @@ inline std::string CopyRightTrim(std::string_view str)
     return r;
 }
 
-inline std::string CopyRightTrim(std::string const& str)
+inline std::string CopyRightTrim(std::string const &str)
 {
     std::string r(str);
     RightTrim(r);
     return r;
 }
 
-inline std::string CopyTrim(const char* str)
+inline std::string CopyTrim(const char *str)
 {
     if (str == nullptr)
         return std::string();
@@ -130,19 +132,19 @@ inline std::string CopyTrim(std::string_view str)
     return r;
 }
 
-inline std::string CopyTrim(std::string const& str)
+inline std::string CopyTrim(std::string const &str)
 {
     std::string r(str);
     Trim(r);
     return r;
 }
 
-inline void ToLower(std::string& str)
+inline void ToLower(std::string &str)
 {
     details::ToLower(&str[0], str.length());
 }
 
-inline void ToLower(char* str)
+inline void ToLower(char *str)
 {
     if (str == nullptr)
         return;
@@ -150,14 +152,14 @@ inline void ToLower(char* str)
     details::ToLower(str, strlen(str));
 }
 
-inline std::string CopyLower(std::string const& str)
+inline std::string CopyLower(std::string const &str)
 {
     std::string r(str);
     details::ToLower(&r[0], r.length());
     return r;
 }
 
-inline std::string CopyLower(const char* str)
+inline std::string CopyLower(const char *str)
 {
     std::string r(str == nullptr ? "" : str);
     details::ToLower(&r[0], r.length());
@@ -171,12 +173,12 @@ inline std::string CopyLower(std::string_view str)
     return r;
 }
 
-inline void ToUpper(std::string& str)
+inline void ToUpper(std::string &str)
 {
     details::ToUpper(&str[0], str.length());
 }
 
-inline void ToUpper(char* str)
+inline void ToUpper(char *str)
 {
     if (str == nullptr)
         return;
@@ -184,14 +186,14 @@ inline void ToUpper(char* str)
     details::ToUpper(str, strlen(str));
 }
 
-inline std::string CopyUpper(std::string const& str)
+inline std::string CopyUpper(std::string const &str)
 {
     std::string r(str);
     details::ToUpper(&r[0], r.length());
     return r;
 }
 
-inline std::string CopyUpper(const char* str)
+inline std::string CopyUpper(const char *str)
 {
     std::string r(str == nullptr ? "" : str);
     details::ToUpper(&r[0], r.length());
@@ -205,8 +207,8 @@ inline std::string CopyUpper(std::string_view str)
     return r;
 }
 
-template<typename IteratorType>
-inline std::string Join(IteratorType begin, IteratorType end, const std::string& sep)
+template <typename IteratorType>
+inline std::string Join(IteratorType begin, IteratorType end, const std::string &sep)
 {
     std::string res;
 
@@ -222,14 +224,14 @@ inline std::string Join(IteratorType begin, IteratorType end, const std::string&
     return res;
 }
 
-template<typename T>
-inline std::string Join(T const& container, const std::string& sep)
+template <typename T>
+inline std::string Join(T const &container, const std::string &sep)
 {
     return Join(std::begin(container), std::end(container), sep);
 }
 
 // Clone a string allocated with the "new" operator, if str is nullptr, an empty string ("") will be returned, NOT nullptr !
-inline char* CloneString(const char* str)
+inline char *CloneString(const char *str)
 {
     if (str == nullptr)
         return details::CloneString(std::string_view(""));
@@ -237,18 +239,18 @@ inline char* CloneString(const char* str)
     return details::CloneString(std::string_view(str, strlen(str)));
 }
 
-inline char* CloneString(std::string const& str)
+inline char *CloneString(std::string const &str)
 {
     return details::CloneString(std::string_view(str));
 }
 
-inline char* CloneString(std::string_view str)
+inline char *CloneString(std::string_view str)
 {
     return details::CloneString(str);
 }
 
 // Will always end the C-String with a null char.
-inline size_t CopyString(const char* src, char* dst, size_t dst_size)
+inline size_t CopyString(const char *src, char *dst, size_t dst_size)
 {
     if (src == nullptr)
         return details::CopyString(std::string_view(""), dst, dst_size);
@@ -256,18 +258,18 @@ inline size_t CopyString(const char* src, char* dst, size_t dst_size)
     return details::CopyString(std::string_view(src, strlen(src)), dst, dst_size);
 }
 
-inline size_t CopyString(std::string_view src, char* dst, size_t dst_size)
+inline size_t CopyString(std::string_view src, char *dst, size_t dst_size)
 {
     return details::CopyString(src, dst, dst_size);
 }
 
-inline size_t CopyString(std::string const& src, char* dst, size_t dst_size) 
+inline size_t CopyString(std::string const &src, char *dst, size_t dst_size)
 {
     return details::CopyString(std::string_view(src), dst, dst_size);
 }
 
-template<size_t N>
-inline size_t CopyString(const char* src, char(&dst)[N])
+template <size_t N>
+inline size_t CopyString(const char *src, char (&dst)[N])
 {
     if (src == nullptr)
         return details::CopyString(std::string_view(""), dst, N);
@@ -275,22 +277,22 @@ inline size_t CopyString(const char* src, char(&dst)[N])
     return details::CopyString(std::string_view(src, strlen(src)), dst, N);
 }
 
-template<size_t N>
-inline size_t CopyString(std::string_view src, char(&dst)[N])
+template <size_t N>
+inline size_t CopyString(std::string_view src, char (&dst)[N])
 {
     return details::CopyString(src, dst, N);
 }
 
-template<size_t N>
-inline size_t CopyString(std::string const& src, char(&dst)[N])
+template <size_t N>
+inline size_t CopyString(std::string const &src, char (&dst)[N])
 {
     return details::CopyString(std::string_view(src), dst, N);
 }
 
-inline std::vector<std::string> SplitString(std::string const& str, char delimiter)
+inline std::vector<std::string> SplitString(std::string const &str, char delimiter)
 {
     std::vector<std::string> result;
-    size_t pos = 0;
+    size_t pos    = 0;
     size_t oldPos = 0;
 
     while ((pos = str.find(delimiter, oldPos)) != std::string::npos)
@@ -307,7 +309,7 @@ inline std::vector<std::string> SplitString(std::string const& str, char delimit
 inline std::vector<std::string_view> SplitString(std::string_view str, char delimiter)
 {
     std::vector<std::string_view> result;
-    size_t pos = 0;
+    size_t pos    = 0;
     size_t oldPos = 0;
 
     while ((pos = str.find(delimiter, oldPos)) != std::string_view::npos)
@@ -321,5 +323,5 @@ inline std::vector<std::string_view> SplitString(std::string_view str, char deli
     return result;
 }
 
-}
-}
+} // namespace String
+} // namespace System

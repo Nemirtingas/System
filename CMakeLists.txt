@@ -36,7 +36,6 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ClassEnumUtils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ConstExpressions.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Endianness.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ScopedLock.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/StringSwitch.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/LoopBreak.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Guid.hpp

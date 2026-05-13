@@ -19,13 +19,10 @@
 
 #pragma once
 
-#if defined(_MSC_VER) || \
-    defined(__INTEL_COMPILER) || \
-    defined(__ARMCC_VERSION) || \
-    defined(__ICC) || defined(__ICL) || defined(__ICCARM) || defined(__ICPC)
-	#define SYSTEM_FORCEINLINE __forceinline
+#if defined(_MSC_VER) || defined(__INTEL_COMPILER) || defined(__ARMCC_VERSION) || defined(__ICC) || defined(__ICL) || defined(__ICCARM) || defined(__ICPC)
+#define SYSTEM_FORCEINLINE __forceinline
 #elif defined(__GNUC__) || defined(__clang__) || defined(__EMSCRIPTEN__)
-	#define SYSTEM_FORCEINLINE __attribute__((always_inline)) inline
+#define SYSTEM_FORCEINLINE __attribute__((always_inline)) inline
 #else
-	#define SYSTEM_FORCEINLINE inline
+#define SYSTEM_FORCEINLINE inline
 #endif

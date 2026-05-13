@@ -23,11 +23,13 @@
 #include <string_view>
 #include <chrono>
 
-namespace System {
-namespace Date {
+namespace System
+{
+namespace Date
+{
 
 std::string ClockIso8601(std::chrono::system_clock::time_point datetime, bool withMilliseconds);
 std::chrono::system_clock::time_point ParseIso8601(std::string_view iso8601);
 
-}
-}
+} // namespace Date
+} // namespace System

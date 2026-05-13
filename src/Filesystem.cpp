@@ -23,32 +23,32 @@
 #include "System_internals.h"
 
 #if defined(SYSTEM_OS_WINDOWS)
-    #define WIN32_LEAN_AND_MEAN
-    #define VC_EXTRALEAN
-    #define NOMINMAX
-    #include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#define NOMINMAX
+#include <Windows.h>
 
-    #ifdef CreateDirectory
-    #undef CreateDirectory
-    #endif
-    #ifdef DeleteFile
-    #undef DeleteFile
-    #endif
+#ifdef CreateDirectory
+#undef CreateDirectory
+#endif
+#ifdef DeleteFile
+#undef DeleteFile
+#endif
 
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
-    #include <sys/types.h>
-    #include <sys/ioctl.h> // get iface broadcast
-    #include <sys/stat.h>  // stats on a file (is directory, size, mtime)
+#include <sys/types.h>
+#include <sys/ioctl.h> // get iface broadcast
+#include <sys/stat.h>  // stats on a file (is directory, size, mtime)
 
-    #include <dirent.h> // to open directories
-    #include <dlfcn.h>  // dlopen (like dll for linux)
+#include <dirent.h> // to open directories
+#include <dlfcn.h>  // dlopen (like dll for linux)
 
-    #include <string.h>
-    #include <limits.h> // PATH_MAX
-    #include <unistd.h>
+#include <string.h>
+#include <limits.h> // PATH_MAX
+#include <unistd.h>
 
 #else
-    #error "unknown arch"
+#error "unknown arch"
 #endif
 
 #include <fstream>
@@ -57,21 +57,23 @@
 
 #include <ctime>
 
-namespace System {
-namespace Filesystem {
+namespace System
+{
+namespace Filesystem
+{
 
-static void _CleanSlashes(std::string& str);
+static void _CleanSlashes(std::string &str);
 
-std::string Filename(std::string const& path)
+std::string Filename(std::string const &path)
 {
     size_t pos = path.find_last_of("/\\");
     if (pos != std::string::npos)
-        return path.substr(pos+1);
+        return path.substr(pos + 1);
 
     return path;
 }
 
-std::string Dirname(std::string const& path)
+std::string Dirname(std::string const &path)
 {
     std::string r(path);
     _CleanSlashes(r);
@@ -97,15 +99,15 @@ std::string Join(std::string_view r, std::string_view l)
     return result;
 }
 
-std::string CanonicalPath(std::string const& path)
+std::string CanonicalPath(std::string const &path)
 {
     if (IsAbsolute(path))
         return CleanPath(path);
 
-    return CleanPath(Join(GetCwd(),path));
+    return CleanPath(Join(GetCwd(), path));
 }
 
-size_t FileSize(std::string const& path)
+size_t FileSize(std::string const &path)
 {
     std::ifstream in_file(path, std::ios::in | std::ios::binary | std::ios::ate);
     if (in_file)
@@ -116,7 +118,7 @@ size_t FileSize(std::string const& path)
     return 0;
 }
 
-std::chrono::system_clock::time_point FileATime(std::string const& path)
+std::chrono::system_clock::time_point FileATime(std::string const &path)
 {
     struct stat file_stat = {};
     if (stat(path.c_str(), &file_stat) != 0)
@@ -125,7 +127,7 @@ std::chrono::system_clock::time_point FileATime(std::string const& path)
     return std::chrono::system_clock::from_time_t(file_stat.st_atime);
 }
 
-std::chrono::system_clock::time_point FileMTime(std::string const& path)
+std::chrono::system_clock::time_point FileMTime(std::string const &path)
 {
     struct stat file_stat = {};
     if (stat(path.c_str(), &file_stat) != 0)
@@ -134,7 +136,7 @@ std::chrono::system_clock::time_point FileMTime(std::string const& path)
     return std::chrono::system_clock::from_time_t(file_stat.st_mtime);
 }
 
-std::chrono::system_clock::time_point FileCTime(std::string const& path)
+std::chrono::system_clock::time_point FileCTime(std::string const &path)
 {
     struct stat file_stat = {};
     if (stat(path.c_str(), &file_stat) != 0)
@@ -145,7 +147,7 @@ std::chrono::system_clock::time_point FileCTime(std::string const& path)
 
 #ifdef SYSTEM_OS_WINDOWS
 
-static void _CleanSlashes(std::string& str)
+static void _CleanSlashes(std::string &str)
 {
     size_t pos;
     std::replace(str.begin(), str.end(), '/', '\\');
@@ -167,7 +169,7 @@ static void _CleanSlashes(std::string& str)
     }
 }
 
-static SYSTEM_FORCEINLINE DWORD _GetFileAttributes(std::wstring const& wpath)
+static SYSTEM_FORCEINLINE DWORD _GetFileAttributes(std::wstring const &wpath)
 {
     return GetFileAttributesW(wpath.c_str());
 }
@@ -187,7 +189,7 @@ static SYSTEM_FORCEINLINE bool _FileAttributesIsDir(DWORD attributes)
     return (attributes & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-static SYSTEM_FORCEINLINE bool _CreateDirectory(std::wstring const& path)
+static SYSTEM_FORCEINLINE bool _CreateDirectory(std::wstring const &path)
 {
     if (CreateDirectoryW(path.c_str(), NULL) == FALSE)
     {
@@ -217,12 +219,12 @@ std::string GetCwd()
     return System::Encoding::WCharToUtf8(wdirectory);
 }
 
-bool IsAbsolute(std::string const& path)
+bool IsAbsolute(std::string const &path)
 {
     return path.length() >= 2 && (((path[0] >= 'a' && path[0] <= 'z') || (path[0] >= 'A' && path[0] <= 'Z')) && path[1] == ':');
 }
 
-std::string CleanPath(std::string const& path)
+std::string CleanPath(std::string const &path)
 {
     std::string cleaned_path(path);
     size_t pos;
@@ -231,9 +233,9 @@ std::string CleanPath(std::string const& path)
     _CleanSlashes(cleaned_path);
 
     pos = 0;
-    while ((pos = cleaned_path.find("\\..", pos)) != std::string::npos )
+    while ((pos = cleaned_path.find("\\..", pos)) != std::string::npos)
     {
-        if (cleaned_path[pos + 3] == '\\' || (pos+3) >= cleaned_path.length())
+        if (cleaned_path[pos + 3] == '\\' || (pos + 3) >= cleaned_path.length())
         {
             if (pos == 0)
                 size = 3;
@@ -243,12 +245,12 @@ std::string CleanPath(std::string const& path)
                 if (parent_pos == std::string::npos)
                 {
                     size = pos + 3;
-                    pos = 0;
+                    pos  = 0;
                 }
                 else
                 {
                     size = 3 + pos - parent_pos;
-                    pos = parent_pos;
+                    pos  = parent_pos;
                 }
             }
 
@@ -263,24 +265,24 @@ std::string CleanPath(std::string const& path)
     return cleaned_path;
 }
 
-bool IsDir(std::string const& path)
+bool IsDir(std::string const &path)
 {
     auto attributes = _GetFileAttributes(System::Encoding::Utf8ToWChar(path));
     return _FileAttributesExists(attributes) && _FileAttributesIsDir(attributes);
 }
 
-bool IsFile(std::string const& path)
+bool IsFile(std::string const &path)
 {
     auto attributes = _GetFileAttributes(System::Encoding::Utf8ToWChar(path));
     return _FileAttributesExists(attributes) && _FileAttributesIsFile(attributes);
 }
 
-bool Exists(std::string const& path)
+bool Exists(std::string const &path)
 {
     return _FileAttributesExists(_GetFileAttributes(System::Encoding::Utf8ToWChar(path)));
 }
 
-bool CreateDirectory(std::string const& directory, bool recursive)
+bool CreateDirectory(std::string const &directory, bool recursive)
 {
     std::wstring sub_dir;
     std::wstring wdirectory(System::Encoding::Utf8ToWChar(directory));
@@ -294,8 +296,8 @@ bool CreateDirectory(std::string const& directory, bool recursive)
 
     do
     {
-        pos = wdirectory.find_first_of(L"\\/", pos + 1);
-        sub_dir = wdirectory.substr(0, pos);
+        pos                   = wdirectory.find_first_of(L"\\/", pos + 1);
+        sub_dir               = wdirectory.substr(0, pos);
         auto subDirAttributes = _GetFileAttributes(sub_dir);
 
         if (_FileAttributesExists(subDirAttributes))
@@ -304,22 +306,21 @@ bool CreateDirectory(std::string const& directory, bool recursive)
                 return false;
         }
         else if (!_CreateDirectory(sub_dir))
-        {// Failed to create directory
+        { // Failed to create directory
             return false;
         }
-    }
-    while (pos != std::string::npos);
+    } while (pos != std::string::npos);
 
     return true;
 }
 
-bool DeleteFile(std::string const& path)
+bool DeleteFile(std::string const &path)
 {
     std::wstring wpath(System::Encoding::Utf8ToWChar(path));
     return DeleteFileW(wpath.c_str()) == TRUE;
 }
 
-static std::vector<std::wstring> ListFiles(std::wstring const& path, bool files_only, bool recursive)
+static std::vector<std::wstring> ListFiles(std::wstring const &path, bool files_only, bool recursive)
 {
     std::vector<std::wstring> files;
     WIN32_FIND_DATAW hfind_data;
@@ -342,8 +343,7 @@ static std::vector<std::wstring> ListFiles(std::wstring const& path, bool files_
         search_path.pop_back();
         do // Managed to locate and create an handle to that folder.
         {
-            if (wcscmp(L".", hfind_data.cFileName) == 0
-                || wcscmp(L"..", hfind_data.cFileName) == 0)
+            if (wcscmp(L".", hfind_data.cFileName) == 0 || wcscmp(L"..", hfind_data.cFileName) == 0)
                 continue;
 
             if (hfind_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -353,10 +353,7 @@ static std::vector<std::wstring> ListFiles(std::wstring const& path, bool files_
                     std::wstring dir_name = hfind_data.cFileName;
 
                     std::vector<std::wstring> sub_files = ListFiles(search_path + dir_name, files_only, true);
-                    std::transform(sub_files.begin(), sub_files.end(), std::back_inserter(files), [&dir_name](std::wstring& Filename)
-                    {
-                        return dir_name + L'\\' + Filename;
-                    });
+                    std::transform(sub_files.begin(), sub_files.end(), std::back_inserter(files), [&dir_name](std::wstring &Filename) { return dir_name + L'\\' + Filename; });
                 }
                 if (!files_only)
                 {
@@ -374,7 +371,7 @@ static std::vector<std::wstring> ListFiles(std::wstring const& path, bool files_
     return files;
 }
 
-std::vector<std::string> ListFiles(std::string const& path, bool files_only, bool recursive)
+std::vector<std::string> ListFiles(std::string const &path, bool files_only, bool recursive)
 {
     std::vector<std::string> files;
     std::wstring wpath(System::Encoding::Utf8ToWChar(path));
@@ -382,17 +379,14 @@ std::vector<std::string> ListFiles(std::string const& path, bool files_only, boo
     std::vector<std::wstring> wfiles(ListFiles(wpath, files_only, recursive));
 
     files.reserve(wfiles.size());
-    std::transform(wfiles.begin(), wfiles.end(), std::back_inserter(files), [](std::wstring const& wFilename)
-    {
-        return System::Encoding::WCharToUtf8(wFilename);
-    });
+    std::transform(wfiles.begin(), wfiles.end(), std::back_inserter(files), [](std::wstring const &wFilename) { return System::Encoding::WCharToUtf8(wFilename); });
 
     return files;
 }
 
 #else
 
-static SYSTEM_FORCEINLINE uint32_t _GetFileAttributes(std::string const& path)
+static SYSTEM_FORCEINLINE uint32_t _GetFileAttributes(std::string const &path)
 {
     struct stat sb;
     return stat(path.c_str(), &sb) == 0 ? sb.st_mode : uint32_t(-1);
@@ -413,7 +407,7 @@ static SYSTEM_FORCEINLINE bool _FileAttributesIsDir(uint32_t attributes)
     return S_ISDIR(attributes);
 }
 
-static SYSTEM_FORCEINLINE bool _CreateDirectory(std::string const& path)
+static SYSTEM_FORCEINLINE bool _CreateDirectory(std::string const &path)
 {
     if (mkdir(path.c_str(), 0755) != 0)
     {
@@ -428,7 +422,7 @@ static SYSTEM_FORCEINLINE bool _CreateDirectory(std::string const& path)
     return true;
 }
 
-static void _CleanSlashes(std::string& str)
+static void _CleanSlashes(std::string &str)
 {
     size_t pos;
     std::replace(str.begin(), str.end(), '\\', '/');
@@ -459,12 +453,12 @@ std::string GetCwd()
     return tmp;
 }
 
-bool IsAbsolute(std::string const& path)
+bool IsAbsolute(std::string const &path)
 {
     return path[0] == '/';
 }
 
-std::string CleanPath(std::string const& path)
+std::string CleanPath(std::string const &path)
 {
     std::string cleaned_path(path);
     size_t pos;
@@ -487,12 +481,12 @@ std::string CleanPath(std::string const& path)
                 if (parent_pos == std::string::npos)
                 {
                     size = pos + 3;
-                    pos = 0;
+                    pos  = 0;
                 }
                 else
                 {
                     size = 3 + pos - parent_pos;
-                    pos = parent_pos;
+                    pos  = parent_pos;
                 }
             }
 
@@ -507,25 +501,25 @@ std::string CleanPath(std::string const& path)
     return cleaned_path;
 }
 
-bool IsDir(std::string const& path)
+bool IsDir(std::string const &path)
 {
     auto attributes = _GetFileAttributes(path);
     return _FileAttributesExists(attributes) && _FileAttributesIsDir(attributes);
 }
 
-bool IsFile(std::string const& path)
+bool IsFile(std::string const &path)
 {
     auto attributes = _GetFileAttributes(path);
     return _FileAttributesExists(attributes) && _FileAttributesIsFile(attributes);
 }
 
-bool Exists(std::string const& path)
+bool Exists(std::string const &path)
 {
     auto attributes = _GetFileAttributes(path);
     return _FileAttributesExists(attributes);
 }
 
-bool CreateDirectory(std::string const& directory, bool recursive)
+bool CreateDirectory(std::string const &directory, bool recursive)
 {
     std::string sub_dir;
     size_t pos = 0;
@@ -538,8 +532,8 @@ bool CreateDirectory(std::string const& directory, bool recursive)
 
     do
     {
-        pos = directory.find("/", pos + 1);
-        sub_dir = directory.substr(0, pos);
+        pos                   = directory.find("/", pos + 1);
+        sub_dir               = directory.substr(0, pos);
         auto subDirAttributes = _GetFileAttributes(sub_dir);
 
         if (_FileAttributesExists(subDirAttributes))
@@ -548,7 +542,7 @@ bool CreateDirectory(std::string const& directory, bool recursive)
                 return false;
         }
         else if (!_CreateDirectory(sub_dir))
-        {// Failed to create directory
+        { // Failed to create directory
             return false;
         }
     } while (pos != std::string::npos);
@@ -556,12 +550,12 @@ bool CreateDirectory(std::string const& directory, bool recursive)
     return true;
 }
 
-bool DeleteFile(std::string const& path)
+bool DeleteFile(std::string const &path)
 {
     return unlink(path.c_str()) == 0;
 }
 
-std::vector<std::string> ListFiles(std::string const& path, bool files_only, bool recursive)
+std::vector<std::string> ListFiles(std::string const &path, bool files_only, bool recursive)
 {
     std::vector<std::string> files;
 
@@ -573,28 +567,24 @@ std::vector<std::string> ListFiles(std::string const& path, bool files_only, boo
             search_path += Separator;
     }
 
-    DIR* dir = opendir(search_path.c_str());
-    struct dirent* entry;
+    DIR *dir = opendir(search_path.c_str());
+    struct dirent *entry;
 
     if (dir == nullptr)
         return files;
 
     while ((entry = readdir(dir)) != nullptr)
     {
-        if (strcmp(entry->d_name, ".") == 0
-            || strcmp(entry->d_name, "..") == 0)
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
         if (entry->d_type == DT_DIR)
         {
             if (recursive)
             {
-                std::string dir_name = entry->d_name;
+                std::string dir_name               = entry->d_name;
                 std::vector<std::string> sub_files = ListFiles(search_path + dir_name, true);
-                std::transform(sub_files.begin(), sub_files.end(), std::back_inserter(files), [&dir_name](std::string& Filename)
-                {
-                    return dir_name + Separator + Filename;
-                });
+                std::transform(sub_files.begin(), sub_files.end(), std::back_inserter(files), [&dir_name](std::string &Filename) { return dir_name + Separator + Filename; });
             }
             if (!files_only)
             {
@@ -614,5 +604,5 @@ std::vector<std::string> ListFiles(std::string const& path, bool files_only, boo
 
 #endif
 
-}
-}
+} // namespace Filesystem
+} // namespace System
