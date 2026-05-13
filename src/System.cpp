@@ -249,7 +249,7 @@ std::vector<std::string> GetProcArgs()
     res.reserve(nArgs);
     for (int i = 0; i < nArgs; ++i)
     {
-        res.emplace_back(System::Encoding::WCharToUtf8(std::wstring_view(szArglist[i])));
+        res.emplace_back(System::Encoding::UTF8::WCharToUtf8(std::wstring_view(szArglist[i])));
     }
 
     LocalFree(szArglist);
@@ -259,7 +259,7 @@ std::vector<std::string> GetProcArgs()
 
 std::string GetEnvVar(std::string const &var)
 {
-    std::wstring wide(System::Encoding::Utf8ToWChar(var));
+    std::wstring wide(System::Encoding::UTF8::Utf8ToWChar(var));
     std::wstring wVar;
 
     DWORD size = GetEnvironmentVariableW(wide.c_str(), nullptr, 0);
@@ -270,19 +270,19 @@ std::string GetEnvVar(std::string const &var)
     wVar.resize(size - 1);
     GetEnvironmentVariableW(wide.c_str(), &wVar[0], size);
 
-    return System::Encoding::WCharToUtf8(wVar);
+    return System::Encoding::UTF8::WCharToUtf8(wVar);
 }
 
 bool SetEnvVar(std::string const &key, std::string const &value)
 {
-    std::wstring wideKey(System::Encoding::Utf8ToWChar(key));
-    std::wstring wideValue(System::Encoding::Utf8ToWChar(value));
+    std::wstring wideKey(System::Encoding::UTF8::Utf8ToWChar(key));
+    std::wstring wideValue(System::Encoding::UTF8::Utf8ToWChar(value));
     return SetEnvironmentVariableW(wideKey.c_str(), wideValue.c_str()) == TRUE;
 }
 
 bool UnsetEnvVar(std::string const &key)
 {
-    std::wstring wideKey(System::Encoding::Utf8ToWChar(key));
+    std::wstring wideKey(System::Encoding::UTF8::Utf8ToWChar(key));
     return SetEnvironmentVariableW(wideKey.c_str(), nullptr) == TRUE;
 }
 
@@ -294,7 +294,7 @@ std::string GetUserdataPath()
     if (FAILED(hr))
         return std::string();
 
-    return System::Encoding::WCharToUtf8(std::wstring(szPath));
+    return System::Encoding::UTF8::WCharToUtf8(std::wstring(szPath));
 }
 
 std::string GetExecutablePath()
@@ -303,7 +303,7 @@ std::string GetExecutablePath()
     std::wstring wpath(4096, L'\0');
 
     wpath.resize(GetModuleFileNameW(nullptr, &wpath[0], wpath.length()));
-    return System::Encoding::WCharToUtf8(wpath);
+    return System::Encoding::UTF8::WCharToUtf8(wpath);
 }
 
 std::string GetModulePath()
@@ -317,7 +317,7 @@ std::string GetModulePath()
         DWORD size = GetModuleFileNameW((HINSTANCE)hModule, &wpath[0], wpath.length());
         wpath.resize(size);
     }
-    return System::Encoding::WCharToUtf8(wpath);
+    return System::Encoding::UTF8::WCharToUtf8(wpath);
 }
 
 std::vector<std::string> GetModules()
@@ -335,14 +335,14 @@ std::vector<std::string> GetModules()
             wpath.resize(4096);
             size = GetModuleFileNameW((HINSTANCE)entry.hModule, &wpath[0], wpath.length());
             wpath.resize(size);
-            paths.emplace_back(System::Encoding::WCharToUtf8(wpath));
+            paths.emplace_back(System::Encoding::UTF8::WCharToUtf8(wpath));
 
             while (Module32NextW(hSnap, &entry) != FALSE)
             {
                 wpath.resize(4096);
                 size = GetModuleFileNameW((HINSTANCE)entry.hModule, &wpath[0], wpath.length());
                 wpath.resize(size);
-                paths.emplace_back(System::Encoding::WCharToUtf8(wpath));
+                paths.emplace_back(System::Encoding::UTF8::WCharToUtf8(wpath));
             }
         }
 
@@ -355,7 +355,7 @@ std::vector<std::string> GetModules()
 bool SetCurrentThreadName(std::string const &thread_name)
 {
     bool success     = false;
-    auto wname       = System::Encoding::Utf8ToWChar(thread_name);
+    auto wname       = System::Encoding::UTF8::Utf8ToWChar(thread_name);
     HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
     if (kernel32 != nullptr)
     {

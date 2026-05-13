@@ -216,7 +216,7 @@ std::string GetCwd()
     wdirectory.resize(GetCurrentDirectoryW(size, &wdirectory[0]));
     wdirectory += L'\\';
 
-    return System::Encoding::WCharToUtf8(wdirectory);
+    return System::Encoding::UTF8::WCharToUtf8(wdirectory);
 }
 
 bool IsAbsolute(std::string const &path)
@@ -267,25 +267,25 @@ std::string CleanPath(std::string const &path)
 
 bool IsDir(std::string const &path)
 {
-    auto attributes = _GetFileAttributes(System::Encoding::Utf8ToWChar(path));
+    auto attributes = _GetFileAttributes(System::Encoding::UTF8::Utf8ToWChar(path));
     return _FileAttributesExists(attributes) && _FileAttributesIsDir(attributes);
 }
 
 bool IsFile(std::string const &path)
 {
-    auto attributes = _GetFileAttributes(System::Encoding::Utf8ToWChar(path));
+    auto attributes = _GetFileAttributes(System::Encoding::UTF8::Utf8ToWChar(path));
     return _FileAttributesExists(attributes) && _FileAttributesIsFile(attributes);
 }
 
 bool Exists(std::string const &path)
 {
-    return _FileAttributesExists(_GetFileAttributes(System::Encoding::Utf8ToWChar(path)));
+    return _FileAttributesExists(_GetFileAttributes(System::Encoding::UTF8::Utf8ToWChar(path)));
 }
 
 bool CreateDirectory(std::string const &directory, bool recursive)
 {
     std::wstring sub_dir;
-    std::wstring wdirectory(System::Encoding::Utf8ToWChar(directory));
+    std::wstring wdirectory(System::Encoding::UTF8::Utf8ToWChar(directory));
     size_t pos = 3;
 
     if (wdirectory.empty())
@@ -316,7 +316,7 @@ bool CreateDirectory(std::string const &directory, bool recursive)
 
 bool DeleteFile(std::string const &path)
 {
-    std::wstring wpath(System::Encoding::Utf8ToWChar(path));
+    std::wstring wpath(System::Encoding::UTF8::Utf8ToWChar(path));
     return DeleteFileW(wpath.c_str()) == TRUE;
 }
 
@@ -374,12 +374,12 @@ static std::vector<std::wstring> ListFiles(std::wstring const &path, bool files_
 std::vector<std::string> ListFiles(std::string const &path, bool files_only, bool recursive)
 {
     std::vector<std::string> files;
-    std::wstring wpath(System::Encoding::Utf8ToWChar(path));
+    std::wstring wpath(System::Encoding::UTF8::Utf8ToWChar(path));
 
     std::vector<std::wstring> wfiles(ListFiles(wpath, files_only, recursive));
 
     files.reserve(wfiles.size());
-    std::transform(wfiles.begin(), wfiles.end(), std::back_inserter(files), [](std::wstring const &wFilename) { return System::Encoding::WCharToUtf8(wFilename); });
+    std::transform(wfiles.begin(), wfiles.end(), std::back_inserter(files), [](std::wstring const &wFilename) { return System::Encoding::UTF8::WCharToUtf8(wFilename); });
 
     return files;
 }

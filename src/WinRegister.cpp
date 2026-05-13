@@ -166,7 +166,7 @@ Key Key::OpenRootKey(void *hRoot, std::wstring const &szSubKey, uint32_t rights,
 Key Key::OpenRootKey(void *hRoot, const char *szSubKey, uint32_t rights, bool create)
 {
     Key k;
-    std::wstring wstr = System::Encoding::Utf8ToWChar(std::string_view(szSubKey));
+    std::wstring wstr = System::Encoding::UTF8::Utf8ToWChar(std::string_view(szSubKey));
     if (!wstr.empty())
         k._OpenKey(hRoot, wstr.c_str(), rights, create);
 
@@ -195,7 +195,7 @@ Key Key::OpenRootKey(std::wstring const &szKey, uint32_t rights, bool create)
 Key Key::OpenRootKey(const char *szKey, uint32_t rights, bool create)
 {
     Key k;
-    std::wstring wstr = System::Encoding::Utf8ToWChar(std::string_view(szKey));
+    std::wstring wstr = System::Encoding::UTF8::Utf8ToWChar(std::string_view(szKey));
     if (!wstr.empty())
         k._OpenKey(wstr.c_str(), rights, create);
 
@@ -233,7 +233,7 @@ Key Key::OpenSubKey(std::wstring const &szSubKey, uint32_t rights, bool create)
 
 Key Key::OpenSubKey(const char *szSubKey, uint32_t rights, bool create)
 {
-    std::wstring wstr = System::Encoding::Utf8ToWChar(std::string_view(szSubKey));
+    std::wstring wstr = System::Encoding::UTF8::Utf8ToWChar(std::string_view(szSubKey));
     if (!wstr.empty())
         return _OpenSubKey(wstr.c_str(), rights, create);
 
@@ -257,7 +257,7 @@ Value Key::ReadValue(std::wstring const &szKey)
 
 Value Key::ReadValue(const char *szKey)
 {
-    std::wstring wstr = System::Encoding::Utf8ToWChar(std::string_view(szKey));
+    std::wstring wstr = System::Encoding::UTF8::Utf8ToWChar(std::string_view(szKey));
     if (!wstr.empty())
         return _ReadValue(wstr.c_str());
 

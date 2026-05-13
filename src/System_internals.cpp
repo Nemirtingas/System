@@ -46,7 +46,7 @@ SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) GetWindowsSystemDirectory()
         buffer.resize(buffer_size * 2);
     }
 
-    return System::Encoding::WCharToUtf8(buffer);
+    return System::Encoding::UTF8::WCharToUtf8(buffer);
 }
 
 } // namespace System

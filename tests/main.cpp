@@ -192,7 +192,7 @@ TEST_CASE("Function name extractor, [function_name]")
     test1.Lambda1();
 
     ClangOperatorWithoutSpace clangTest;
-    uint64_t someInteger;
+    uint64_t someInteger = 0x11223344;
     clangTest._DoSomething(nullptr, someInteger, "");
 }
 
@@ -699,6 +699,36 @@ TEST_CASE("String switch", "[string_switch]")
 
         CHECK(result == "string_hash2");
     }
+}
+
+TEST_CASE("Hex", "[hex]")
+{
+    const uint8_t example[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+
+    CHECK(System::Encoding::Hex::EncodedSize(16) == 32);
+    CHECK(System::Encoding::Hex::DecodedSize(32) == 16);
+    CHECK(System::Encoding::Hex::DecodedSize(33) == 17);
+
+    auto encoded = System::Encoding::Hex::Encode(example, 16, true);
+    CHECK(encoded.size() == 32);
+    CHECK(encoded == "00112233445566778899AABBCCDDEEFF");
+
+    auto encoded_decoded = System::Encoding::Hex::Decode(encoded);
+    CHECK(memcmp(encoded_decoded.data(), example, 16) == 0);
+
+    encoded = System::Encoding::Hex::Encode(example, 16, false);
+    CHECK(encoded.size() == 32);
+    CHECK(encoded == "00112233445566778899aabbccddeeff");
+
+    encoded_decoded = System::Encoding::Hex::Decode(encoded);
+    CHECK(memcmp(encoded_decoded.data(), example, 16) == 0);
+
+    auto decoded = System::Encoding::Hex::Decode("00112233445566778899AaBbcCdDeeff");
+    CHECK(decoded.size() == 16);
+    CHECK(memcmp(decoded.data(), example, 16) == 0);
+
+    auto decoded_encoded = System::Encoding::Hex::Encode(decoded.data(), decoded.size(), true);
+    CHECK(decoded_encoded == "00112233445566778899AABBCCDDEEFF");
 }
 
 TEST_CASE("Base64", "[base64]")
