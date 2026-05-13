@@ -24,13 +24,14 @@
 #include <vector>
 #include <cstdint>
 
-namespace System {
+namespace System
+{
 
 enum class TranslatedMode : uint8_t
 {
-	Unavailable,
-	Native,
-	Translated,
+    Unavailable,
+    Native,
+    Translated,
 };
 
 std::chrono::system_clock::time_point GetBootTime();
@@ -41,11 +42,11 @@ int32_t GetProcessId();
 // Get the current process argv
 std::vector<std::string> GetProcArgs();
 // Get user env variable
-std::string GetEnvVar(std::string const& var);
+std::string GetEnvVar(std::string const &var);
 // Set user env variable
-bool SetEnvVar(std::string const& key, std::string const& value);
+bool SetEnvVar(std::string const &key, std::string const &value);
 // Unset user env variable
-bool UnsetEnvVar(std::string const& key);
+bool UnsetEnvVar(std::string const &key);
 // User appdata full path
 std::string GetUserdataPath();
 // Executable full path
@@ -55,8 +56,8 @@ std::string GetModulePath();
 // List all loaded modules
 std::vector<std::string> GetModules();
 // Set current thread name
-bool SetCurrentThreadName(std::string const& thread_name);
+bool SetCurrentThreadName(std::string const &thread_name);
 // Get if the program is running in translated mode
 TranslatedMode GetTranslatedMode();
 
-}
+} // namespace System

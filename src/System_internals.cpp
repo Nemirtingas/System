@@ -26,13 +26,14 @@
 #define NOMINMAX
 #include <Windows.h>
 
-namespace System {
+namespace System
+{
 
 SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) GetWindowsSystemDirectory()
 {
     std::wstring buffer(5, L'\0');
     UINT buffer_size;
-    for(;;)
+    for (;;)
     {
         buffer_size = buffer.size();
         buffer_size = GetSystemDirectoryW(&buffer[0], buffer_size);
@@ -48,20 +49,21 @@ SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) GetWindowsSystemDirectory()
     return System::Encoding::WCharToUtf8(buffer);
 }
 
-}
+} // namespace System
 
 #elif defined(SYSTEM_OS_LINUX)
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace System {
+namespace System
+{
 SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) ExpandSymlink(std::string file_path)
 {
     struct stat file_stat;
     std::string link_target;
     ssize_t name_len = 128;
-    while(lstat(file_path.c_str(), &file_stat) >= 0 && S_ISLNK(file_stat.st_mode) == 1)
+    while (lstat(file_path.c_str(), &file_stat) >= 0 && S_ISLNK(file_stat.st_mode) == 1)
     {
         do
         {
@@ -76,6 +78,6 @@ SYSTEM_HIDE_API(std::string, SYSTEM_CALL_DEFAULT) ExpandSymlink(std::string file
     return file_path;
 }
 
-}
+} // namespace System
 
 #endif

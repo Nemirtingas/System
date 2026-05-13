@@ -23,10 +23,10 @@
 #include <memory>
 
 #if defined(SYSTEM_OS_WINDOWS)
-    #define WIN32_LEAN_AND_MEAN
-    #define VC_EXTRALEAN
-    #define NOMINMAX
-    #include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#define NOMINMAX
+#include <Windows.h>
 
 constexpr char library_suffix[] = ".dll";
 
@@ -76,8 +76,8 @@ typedef NTSTATUS(NTAPI *_LdrRegisterDllNotification)(ULONG Flags, PLDR_DLL_NOTIF
 
 typedef NTSTATUS(NTAPI *_LdrUnregisterDllNotification)(PVOID Cookie);
 
-    #define LDR_DLL_NOTIFICATION_REASON_LOADED 1
-    #define LDR_DLL_NOTIFICATION_REASON_UNLOADED 2
+#define LDR_DLL_NOTIFICATION_REASON_LOADED 1
+#define LDR_DLL_NOTIFICATION_REASON_UNLOADED 2
 
 struct LibraryNotificationParameter_t
 {
@@ -87,21 +87,21 @@ struct LibraryNotificationParameter_t
 };
 
 #elif defined(SYSTEM_OS_LINUX) || defined(SYSTEM_OS_APPLE)
-    #include <dlfcn.h>
-    #include <cstring>
+#include <dlfcn.h>
+#include <cstring>
 
-    #if defined(SYSTEM_OS_LINUX)
-        #include <dirent.h> // to open directories
-        #include <unistd.h>
-        #include <sys/types.h>
-        #include <sys/stat.h>
+#if defined(SYSTEM_OS_LINUX)
+#include <dirent.h> // to open directories
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 constexpr char library_suffix[] = ".so";
-    #else
-        #include <mach-o/dyld_images.h>
+#else
+#include <mach-o/dyld_images.h>
 
 constexpr char library_suffix[] = ".dylib";
-    #endif
+#endif
 #endif
 
 namespace System
@@ -264,7 +264,7 @@ void *GetSymbol(void *handle, const char *symbol_name)
     return dlsym(handle, symbol_name);
 }
 
-    #if defined(SYSTEM_OS_LINUX)
+#if defined(SYSTEM_OS_LINUX)
 std::string GetLibraryPath(void *handle)
 {
     if (handle == nullptr)
@@ -360,7 +360,7 @@ void *GetLibraryHandle(const char *library_name)
     return res;
 }
 
-    #else
+#else
 
 std::string GetLibraryPath(void *handle)
 {
@@ -431,7 +431,7 @@ void *GetLibraryHandle(const char *library_name)
 
     return res;
 }
-    #endif
+#endif
 
 void *GetLibraryHandleFromAddress(const void *address)
 {

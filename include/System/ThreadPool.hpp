@@ -34,7 +34,8 @@
 
 #include <System/System.h>
 
-namespace System {
+namespace System
+{
 class ThreadPool
 {
     using task_t = std::function<void()>;
@@ -48,33 +49,28 @@ class ThreadPool
     std::vector<std::thread> _Workers;
     std::queue<task_t> _Tasks;
 
-public:
-    explicit ThreadPool():
-        _ActiveCount(0)
+  public:
+    explicit ThreadPool()
+        : _ActiveCount(0)
     {
     }
 
-    ~ThreadPool()
-    {
-        Join();
-    }
+    ~ThreadPool() { Join(); }
 
     ThreadPool(ThreadPool const &) = delete;
-    ThreadPool(ThreadPool&&) = default;
+    ThreadPool(ThreadPool &&)      = default;
 
-    ThreadPool&operator=(ThreadPool const &) = delete;
-    ThreadPool&operator=(ThreadPool&&) = default;
+    ThreadPool &operator=(ThreadPool const &) = delete;
+    ThreadPool &operator=(ThreadPool &&)      = default;
 
     template <class Func, class... Args>
-    auto Push(Func&& fn, Args &&...args)
+    auto Push(Func &&fn, Args &&...args)
     {
         using return_type = decltype(fn(args...));
 
-        auto task{ std::make_shared<std::packaged_task<return_type()>>(
-            std::bind(std::forward<Func>(fn), std::forward<Args>(args)...)
-        ) };
+        auto task{std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<Func>(fn), std::forward<Args>(args)...))};
 
-        auto future{ task->get_future() };
+        auto future{task->get_future()};
         {
             std::lock_guard<std::mutex> lock(_Mutex);
 
@@ -117,18 +113,12 @@ public:
         _Workers.clear();
     }
 
-    std::size_t WorkerCount() const
-    {
-        return _Workers.size();
-    }
+    std::size_t WorkerCount() const { return _Workers.size(); }
 
     // Get the number of active workers
-    std::size_t ActiveCount() const
-    {
-        return _ActiveCount;
-    }
+    std::size_t ActiveCount() const { return _ActiveCount; }
 
-private:
+  private:
     void _WorkerLoop(std::string worker_name)
     {
         if (!worker_name.empty())
@@ -136,7 +126,7 @@ private:
 
         while (true)
         {
-            auto task{ _NextTask() };
+            auto task{_NextTask()};
 
             if (task)
             {
@@ -153,16 +143,16 @@ private:
 
     std::function<void()> _NextTask()
     {
-        std::unique_lock<std::mutex> lock{ _Mutex };
+        std::unique_lock<std::mutex> lock{_Mutex};
 
         _WorkerNotifier.wait(lock, [this]() { return !_Tasks.empty() || _StopWorkers; });
 
         if (_Tasks.empty())
             return {};
 
-        auto task{ _Tasks.front() };
+        auto task{_Tasks.front()};
         _Tasks.pop();
         return task;
     }
 };
-}
+} // namespace System

@@ -50,7 +50,11 @@ class Library
 
     void *GetVSymbol(std::string const &symbol_name) const;
 
-    template <typename T> inline T *GetSymbol(std::string const &symbol_name) const { return reinterpret_cast<T *>(GetVSymbol(symbol_name)); }
+    template <typename T>
+    inline T *GetSymbol(std::string const &symbol_name) const
+    {
+        return reinterpret_cast<T *>(GetVSymbol(symbol_name));
+    }
 
     std::string GetLibraryPath() const;
 

@@ -21,21 +21,20 @@
 #include <System/Guid.hpp>
 
 #if defined(SYSTEM_OS_WINDOWS)
-    #define SSCANF(...) sscanf_s(__VA_ARGS__)
+#define SSCANF(...) sscanf_s(__VA_ARGS__)
 #else
-    #define SSCANF(...) sscanf(__VA_ARGS__)
+#define SSCANF(...) sscanf(__VA_ARGS__)
 #endif
 
-namespace {
+namespace
+{
 
 constexpr const char GUID_LOWER_STRING_FORMAT[] = "%08x-%04hx-%04hx-%04hx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx";
 constexpr const char GUID_UPPER_STRING_FORMAT[] = "%08X-%04hX-%04hX-%04hX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";
 
-static bool IsValidGUID(std::string const& guidString)
+static bool IsValidGUID(std::string const &guidString)
 {
-    if (guidString.length() != 36
-        || guidString[8] != '-' || guidString[13] != '-'
-        || guidString[18] != '-' || guidString[23] != '-')
+    if (guidString.length() != 36 || guidString[8] != '-' || guidString[13] != '-' || guidString[18] != '-' || guidString[23] != '-')
     {
         return false;
     }
@@ -45,9 +44,7 @@ static bool IsValidGUID(std::string const& guidString)
         if (i != 8 && i != 13 && i != 18 && i != 23)
         {
             char c = guidString[i];
-            if (((c < '0') || (c > '9')) &&
-                ((c < 'A') || (c > 'F')) &&
-                ((c < 'a') || (c > 'f')))
+            if (((c < '0') || (c > '9')) && ((c < 'A') || (c > 'F')) && ((c < 'a') || (c > 'f')))
             {
                 return false;
             }
@@ -56,47 +53,53 @@ static bool IsValidGUID(std::string const& guidString)
     return true;
 }
 
-}
+} // namespace
 
-namespace System {
+namespace System
+{
 
-bool Guid::FromString(std::string const& stringGuid)
+bool Guid::FromString(std::string const &stringGuid)
 {
     if (!IsValidGUID(stringGuid))
         return false;
 
-    SSCANF(stringGuid.c_str(), GUID_LOWER_STRING_FORMAT,
-        reinterpret_cast<uint32_t*>(&reinterpret_cast<uint8_t*>(&_Data)[0]),
-        reinterpret_cast<uint16_t*>(&reinterpret_cast<uint8_t*>(&_Data)[4]),
-        reinterpret_cast<uint16_t*>(&reinterpret_cast<uint8_t*>(&_Data)[6]),
-        reinterpret_cast<uint16_t*>(&reinterpret_cast<uint8_t*>(&_Data)[8]),
-        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[10]),
-        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[11]),
-        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[12]),
-        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[13]),
-        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[14]),
-        reinterpret_cast<uint8_t*>(&reinterpret_cast<uint8_t*>(&_Data)[15]));
+    SSCANF(
+        stringGuid.c_str(),
+        GUID_LOWER_STRING_FORMAT,
+        reinterpret_cast<uint32_t *>(&reinterpret_cast<uint8_t *>(&_Data)[0]),
+        reinterpret_cast<uint16_t *>(&reinterpret_cast<uint8_t *>(&_Data)[4]),
+        reinterpret_cast<uint16_t *>(&reinterpret_cast<uint8_t *>(&_Data)[6]),
+        reinterpret_cast<uint16_t *>(&reinterpret_cast<uint8_t *>(&_Data)[8]),
+        reinterpret_cast<uint8_t *>(&reinterpret_cast<uint8_t *>(&_Data)[10]),
+        reinterpret_cast<uint8_t *>(&reinterpret_cast<uint8_t *>(&_Data)[11]),
+        reinterpret_cast<uint8_t *>(&reinterpret_cast<uint8_t *>(&_Data)[12]),
+        reinterpret_cast<uint8_t *>(&reinterpret_cast<uint8_t *>(&_Data)[13]),
+        reinterpret_cast<uint8_t *>(&reinterpret_cast<uint8_t *>(&_Data)[14]),
+        reinterpret_cast<uint8_t *>(&reinterpret_cast<uint8_t *>(&_Data)[15]));
 
-	return true;
+    return true;
 }
 
 std::string Guid::ToString(bool upperCaseHex) const
 {
     std::string res(36, '\0');
 
-    snprintf(&res[0], 37, upperCaseHex ? GUID_UPPER_STRING_FORMAT : GUID_LOWER_STRING_FORMAT,
-        *reinterpret_cast<const uint32_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[0]),
-        *reinterpret_cast<const uint16_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[4]),
-        *reinterpret_cast<const uint16_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[6]),
-        *reinterpret_cast<const uint16_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[8]),
-        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[10]),
-        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[11]),
-        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[12]),
-        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[13]),
-        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[14]),
-        *reinterpret_cast<const uint8_t*>(&reinterpret_cast<const uint8_t*>(&_Data)[15]));
+    snprintf(
+        &res[0],
+        37,
+        upperCaseHex ? GUID_UPPER_STRING_FORMAT : GUID_LOWER_STRING_FORMAT,
+        *reinterpret_cast<const uint32_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[0]),
+        *reinterpret_cast<const uint16_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[4]),
+        *reinterpret_cast<const uint16_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[6]),
+        *reinterpret_cast<const uint16_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[8]),
+        *reinterpret_cast<const uint8_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[10]),
+        *reinterpret_cast<const uint8_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[11]),
+        *reinterpret_cast<const uint8_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[12]),
+        *reinterpret_cast<const uint8_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[13]),
+        *reinterpret_cast<const uint8_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[14]),
+        *reinterpret_cast<const uint8_t *>(&reinterpret_cast<const uint8_t *>(&_Data)[15]));
 
     return res;
 }
 
-}
+} // namespace System
