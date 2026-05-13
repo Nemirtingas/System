@@ -33,6 +33,9 @@ set(SYSTEM_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ThreadPool.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/FunctionName.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding/UTF8.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding/Base64.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Encoding/Hex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ClassEnumUtils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/ConstExpressions.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/System/Endianness.hpp
@@ -45,7 +48,9 @@ set(SYSTEM_HEADERS
 
 add_library(system
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CPUExtentions.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Encoding.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/EncodingUTF8.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/EncodingBase64.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/EncodingHex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Filesystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Date.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Guid.cpp
