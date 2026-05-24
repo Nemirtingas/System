@@ -55,7 +55,7 @@ inline std::string Encode(std::uint8_t const *data, std::size_t len, bool upperC
 {
     std::string dest;
     dest.resize(EncodedSize(len));
-    dest.resize(Encode(&dest[0], data, len, upperCase));
+    dest.resize(Encode(dest.data(), data, len, upperCase));
     return dest;
 }
 
@@ -63,7 +63,7 @@ inline std::vector<uint8_t> Decode(std::string_view data)
 {
     std::vector<uint8_t> dest;
     dest.resize(DecodedSize(data.size()));
-    auto const result = Decode(&dest[0], data.data(), data.size());
+    auto const result = Decode(dest.data(), data.data(), data.size());
     return dest;
 }
 
