@@ -618,6 +618,11 @@ TEST_CASE("String switch", "[string_switch]")
         constexpr auto string_hash3 = System::StringSwitch::Hash("string_hash3");
         constexpr auto string_hash4 = System::StringSwitch::Hash("string_hash4");
 
+        CHECK(string_hash1 == 0x66d7580fb81bbda0);
+        CHECK(string_hash2 == 0x66d75b0fb81bc2b9);
+        CHECK(string_hash3 == 0x66d75a0fb81bc106);
+        CHECK(string_hash4 == 0x66d75d0fb81bc61f);
+
         switch (System::StringSwitch::Hash(string))
         {
             case string_hash1: result = "string_hash1"; break;

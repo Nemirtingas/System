@@ -23,119 +23,155 @@
 #include <string>
 #include <string_view>
 
-#include "SystemDetector.h"
-
 namespace System
 {
-
 namespace StringSwitch
 {
-
-#if defined(SYSTEM_ARCH_X86)
-using hash_type = uint32_t;
-#else
-using hash_type = uint64_t;
-#endif
-
 namespace Detail
 {
-constexpr char lower_char(char c)
+
+// =========================
+// FNV constants
+// =========================
+constexpr uint64_t FNV_OFFSET_BASIS = 14695981039346656037ull;
+constexpr uint64_t FNV_PRIME        = 1099511628211ull;
+
+// =========================
+// Char policies
+// =========================
+namespace Policy
 {
-    return ((c >= 'A' && c <= 'Z') ? c + ('a' - 'A') : c);
+constexpr char identity(char c)
+{
+    return c;
 }
 
-constexpr char lower_wchar(wchar_t c)
+constexpr char lower(char c)
 {
-    return ((c >= L'A' && c <= L'Z') ? c + (L'a' - L'A') : c);
+    return (c >= 'A' && c <= 'Z') ? (c + 32) : c;
 }
 
-constexpr size_t strlen(const char *str)
+constexpr wchar_t identity(wchar_t c)
 {
-    return *str == 0 ? 0 : strlen(str + 1) + 1;
+    return c;
 }
 
-constexpr size_t wcslen(const wchar_t *str)
+constexpr wchar_t lower(wchar_t c)
 {
-    return *str == 0 ? 0 : wcslen(str + 1) + 1;
+    return (c >= L'A' && c <= L'Z') ? (c + 32) : c;
 }
+
+} // namespace Policy
+
+// =========================
+// Core FNV-1a (generic)
+// =========================
+template <typename CharT, CharT (*Transform)(CharT)>
+constexpr uint64_t fnv1a(const CharT *data, size_t len)
+{
+    uint64_t hash = FNV_OFFSET_BASIS;
+
+    for (size_t i = 0; i < len; ++i)
+    {
+        hash ^= static_cast<uint64_t>(Transform(data[i]));
+        hash *= FNV_PRIME;
+    }
+
+    return hash;
+}
+
+template <typename CharT, CharT (*Transform)(CharT)>
+constexpr uint64_t fnv1a(const CharT *data)
+{
+    uint64_t hash = FNV_OFFSET_BASIS;
+
+    while (*data)
+    {
+        hash ^= static_cast<uint64_t>(Transform(*data++));
+        hash *= FNV_PRIME;
+    }
+
+    return hash;
+}
+
 } // namespace Detail
 
-// switch case on a string
-// char
-constexpr hash_type Hash(const char *input, size_t len)
+// =========================
+// Public API - case sensitive
+// =========================
+
+constexpr uint64_t Hash(const char *s, size_t len)
 {
-    return (len > 0 ? static_cast<hash_type>(*input) + 33 * Hash(input + 1, len - 1) : 5381);
+    return Detail::fnv1a<char, Detail::Policy::identity>(s, len);
 }
 
-constexpr hash_type Hash(const char *input)
+constexpr uint64_t Hash(const char *s)
 {
-    return Hash(input, Detail::strlen(input));
+    return Detail::fnv1a<char, Detail::Policy::identity>(s);
 }
 
-inline hash_type Hash(const std::string &input)
+constexpr uint64_t Hash(std::string_view sv)
 {
-    return Hash(input.c_str(), input.length());
+    return Hash(sv.data(), sv.size());
 }
 
-// wchar
-constexpr hash_type Hash(const wchar_t *input, size_t len)
+inline uint64_t Hash(const std::string &s)
 {
-    return (len > 0 ? static_cast<hash_type>(*input) + 33 * Hash(input + 1, len - 1) : 5381);
+    return Hash(s.data(), s.size());
 }
 
-constexpr hash_type Hash(const wchar_t *input)
+constexpr uint64_t Hash(const wchar_t *s, size_t len)
 {
-    return Hash(input, Detail::wcslen(input));
+    return Detail::fnv1a<wchar_t, Detail::Policy::identity>(s, len);
 }
 
-inline hash_type Hash(const std::wstring &input)
+constexpr uint64_t Hash(const wchar_t *s)
 {
-    return Hash(input.c_str(), input.length());
+    return Detail::fnv1a<wchar_t, Detail::Policy::identity>(s);
 }
 
-// custom
-constexpr hash_type Hash(std::string_view sv)
+inline uint64_t Hash(const std::wstring &s)
 {
-    return Hash(sv.data(), sv.length());
+    return Hash(s.data(), s.size());
 }
 
-// switch case on a case insensible string
-// char
-constexpr hash_type IHash(const char *input, size_t len)
+// =========================
+// Public API - case insensitive
+// =========================
+
+constexpr uint64_t IHash(const char *s, size_t len)
 {
-    return (len > 0 ? static_cast<hash_type>(Detail::lower_char(*input)) + 33 * IHash(input + 1, len - 1) : 5381);
+    return Detail::fnv1a<char, Detail::Policy::lower>(s, len);
 }
 
-constexpr inline hash_type IHash(const char *input)
+constexpr uint64_t IHash(const char *s)
 {
-    return IHash(input, Detail::strlen(input));
+    return Detail::fnv1a<char, Detail::Policy::lower>(s);
 }
 
-inline hash_type IHash(const std::string &input)
+constexpr uint64_t IHash(std::string_view sv)
 {
-    return IHash(input.c_str(), input.length());
+    return IHash(sv.data(), sv.size());
 }
 
-// wchar
-constexpr hash_type IHash(const wchar_t *input, size_t len)
+inline uint64_t IHash(const std::string &s)
 {
-    return (len > 0 ? static_cast<hash_type>(Detail::lower_wchar(*input)) + 33 * IHash(input + 1, len - 1) : 5381);
+    return IHash(s.data(), s.size());
 }
 
-constexpr inline hash_type IHash(const wchar_t *input)
+constexpr uint64_t IHash(const wchar_t *s, size_t len)
 {
-    return IHash(input, Detail::wcslen(input));
+    return Detail::fnv1a<wchar_t, Detail::Policy::lower>(s, len);
 }
 
-inline hash_type IHash(const std::wstring &input)
+constexpr uint64_t IHash(const wchar_t *s)
 {
-    return IHash(input.c_str(), input.length());
+    return Detail::fnv1a<wchar_t, Detail::Policy::lower>(s);
 }
 
-// custom
-constexpr hash_type IHash(std::string_view sv)
+inline uint64_t IHash(const std::wstring &s)
 {
-    return IHash(sv.data(), sv.length());
+    return IHash(s.data(), s.size());
 }
 
 } // namespace StringSwitch
